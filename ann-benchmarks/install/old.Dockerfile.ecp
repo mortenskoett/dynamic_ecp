@@ -1,0 +1,12 @@
+FROM ann-benchmarks
+
+RUN apt-get update
+RUN apt-get install -y swig
+RUN apt-get install -y python3-venv
+RUN git clone -b 1_untouched_original_code https://github.com/mortenskoett/dynamic_eCP.git eCP
+WORKDIR "/home/app/eCP/scripts"
+RUN ./generate_wrapper.sh
+WORKDIR "/home/app"
+RUN mv "/home/app/eCP/wrapper/files_generated/_eCP_wrapper.cpython-36m-x86_64-linux-gnu.so" "/home/app/"
+RUN mv "/home/app/eCP/wrapper/files_generated/eCP_wrapper.py" "/home/app/"
+WORKDIR "/home/app"

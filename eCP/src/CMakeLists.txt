@@ -2,7 +2,7 @@
 file(GLOB HEADER_LIST CONFIGURE_DEPENDS "${ECP_SOURCE_DIR}/include/eCP/*.hpp")
 file(GLOB SOURCE_LIST CONFIGURE_DEPENDS "${ECP_SOURCE_DIR}/src/*.cpp")
 
-add_library(eCP_library ${SOURCE_LIST} ${HEADER_LIST})
+add_library(eCP_library SHARED ${SOURCE_LIST} ${HEADER_LIST})
 
 target_include_directories(eCP_library
     PUBLIC 
