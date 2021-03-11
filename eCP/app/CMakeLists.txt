@@ -1,5 +1,12 @@
 add_library(utilLib utility.cpp)
 
+target_compile_options(utilLib
+    PUBLIC
+        ${cflags}
+        -O3
+        -g
+)
+
 # To find headers for utilLib
 target_include_directories(utilLib
     PUBLIC
@@ -27,4 +34,11 @@ target_link_libraries(main
     PUBLIC
         eCP_library
         ittnotify
+)
+
+target_compile_options(main
+    PUBLIC
+        ${cflags}
+        -O3
+        -g
 )

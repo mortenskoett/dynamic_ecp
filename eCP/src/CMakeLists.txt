@@ -8,3 +8,10 @@ target_include_directories(eCP_library
     PUBLIC 
         ./
         ../include)
+
+target_compile_options(eCP_library
+    PUBLIC
+        ${cflags}
+        -O3
+        -g
+)

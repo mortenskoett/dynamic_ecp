@@ -7,6 +7,7 @@ project(
     LANGUAGES CXX)
 
 set (CMAKE_CXX_STANDARD 14)
+set( CMAKE_VERBOSE_MAKEFILE on )
 
 # Must be in main file
 enable_testing()
@@ -18,15 +19,11 @@ add_subdirectory(swig)
 add_subdirectory(extern)
 add_subdirectory(tests)
 
-# Setting build flags
-list(APPEND flags "-fPIC" "-Wall")
-if(NOT WIN32)
-  list(APPEND flags "-Wextra" "-Wpedantic")
-endif()
+message("Input C++ compiler flags: ${CMAKE_CXX_FLAGS}")
 
-target_compile_options(main
-    PUBLIC
-        ${flags}
-        -O3
-        -g
-)
+# Setting build flags
+list(APPEND cflags "-O3" "-fPIC" "-Wall" "-fno-rtti")
+
+if(NOT WIN32)
+  list(APPEND cflags "-Wextra" "-Wpedantic")
+endif()

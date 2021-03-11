@@ -1,6 +1,6 @@
 # Check and include SWIG w. cmake
 find_package(SWIG COMPONENTS python)
-include(UseSWIG)
+include(${SWIG_USE_FILE})
 
 # Check and include Python libraries
 find_package(PythonLibs)
