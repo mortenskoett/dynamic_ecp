@@ -65,6 +65,6 @@ namespace query_processing
 	 * @param b tuple b (index, distance)
 	 */
 	bool smallest_distance(std::pair<unsigned int, float>& a, std::pair<unsigned int, float>& b);
-};
+}
 
 #endif // QUERY_PROCESSING_H
