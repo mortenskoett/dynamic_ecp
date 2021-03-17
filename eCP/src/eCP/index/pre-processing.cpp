@@ -1,78 +1,78 @@
 #include <cmath>
 #include <algorithm>
-
 #include <iostream>
+
 #include <eCP/index/pre-processing.hpp>
 #include <eCP/index/query-processing.hpp>
 #include <eCP/index/shared/distance.hpp>
 #include <eCP/index/shared/globals.hpp>
+#include <eCP/utilities/utilities.hpp>
 
 namespace pre_processing 
 {
-
-/**
- * The data set is partitioned bottom up and the levels connected top down from the top level.
- */
-std::vector<Node> create_index(std::vector<Point>& dataset, unsigned int L)
+std::vector<Node> create_index(const std::vector<std::vector<float>> &dataset, unsigned int L)
 {
-    unsigned int level_sizes[L];
+  std::vector<std::vector<unsigned>> leader_indexes(L);   // Indexes picked randomly from input dataset used as leaders for each level
 
-    // Create levels from L..1 such that 0=root, 1=L2 etc.
-    for (unsigned int i = L ; i > 0 ; --i) {
-		unsigned int clusters = ceil(pow(dataset.size(), (i / (L + 1.00))));
-        level_sizes[i - 1] = clusters;
+  // Computing random indexes bottom-up, leader_indexes[0] is level 1.
+  unsigned container_size = dataset.size();
+  for (unsigned i = L; i > 0; --i) {
+
+    // Calculate level sizes (i.e. how many clusters for level L)
+    unsigned level_size = ceil(pow(dataset.size(), (i / (L + 1.00))));
+
+    // Pick random leaders for current level
+    leader_indexes[i-1].reserve(level_size);
+    leader_indexes[i-1] = utilities::get_random_unique_indexes(level_size, container_size);    // TODO: Time this to see if RVO or move/copy ctors are being utilized
+
+    // Set to the size of current level, because indexes are found from the level below
+    container_size = level_size;
+  }
+
+  std::vector<Node> previous_level;   // Used to maintain the level below when building current level
+
+  for (auto it = leader_indexes.rbegin(); it != leader_indexes.rend(); ++it) {    // Using reverse_iterator because we need to start with bottom level
+    std::vector<Node> current_level;
+    current_level.reserve(it->size());
+
+    // Only for bottom level L
+    if (previous_level.size() == 0) {
+      for (auto index : *it) {
+        current_level.emplace_back(Node{Point{dataset[index].data(), index}});   // Pick from input dataset using index as Id of Point
+      }
     }
 
-  // Build top level, using first n^(1/(L+1)) points of data set                                // Possible issue - leaders not picked randomly
-  std::vector<Node> top_level;
-	top_level.reserve(level_sizes[0]);                                                 
-
-	for (unsigned int i = 0; i < level_sizes[0]; ++i)
-	{
-    top_level.emplace_back(Node{dataset[i]});                                                   // Should be picking random leaders here
-	}
-	top_level.shrink_to_fit();
-
-  // Insert representatives in each level below L=1, i.e. forall L>1
-  for (unsigned int level = 1; level < L; ++level) {
-    const unsigned int avg_representatives = ceil(pow(dataset.size(), (1.00 / (L + 1.00))));                        // Each leaf cluster always represents, on average, n^( 1/(L+1) ) point
-
-    for (unsigned int i = 0; i < level_sizes[level]; ++i) {                                                         // Add each representative for current level
-      auto* top_level_nearest = get_closest_node(top_level, dataset[i].descriptor);
-      auto* lower_level_nearest = find_nearest_leaf_from_level(dataset[i].descriptor, top_level_nearest, level-1);  // -1 since top level has to be compared with
-
-      auto node = Node{dataset[i]};                                                                                 // Setting representative to be dataset[i] here
-
-      if (level == L-1) {
-        node.points.reserve(avg_representatives);                                                                   // At bottom/leaf level
-			}
-			else {
-        node.children.reserve(avg_representatives);                                                                 // Internal node in index
+    // For all levels above L (i.e. L-1...1)
+    else {
+      for (auto index : *it) {
+        auto* node = &previous_level[index];   // Pick previously randomly found nodes from level below to construct current level
+        current_level.emplace_back(Node{Point{node->get_leader().descriptor, node->get_leader().id}});    // To not copy children into current level
       }
 
-      lower_level_nearest->children.emplace_back(node);
-		}
-	}
+      // Add all nodes from below level as children of current level
+      for (auto node : previous_level) {
+        get_closest_node(current_level, node.get_leader().descriptor)->children.emplace_back(node);
+      }
+    }
 
-	return top_level;
+    previous_level.swap(current_level);
+  }
+
+  // Add all points from input dataset to the index incl those duplicated in the index construction.
+  unsigned id{0};
+  for (auto &descriptor : dataset) {
+    auto *leaf = find_nearest_leaf(descriptor.data(), previous_level);
+    if (id == leaf->get_leader().id) {    // Because the leader was added to the cluster when the index was built
+      id ++;
+      continue;
+    }
+    leaf->points.emplace_back(Point{descriptor.data(), id++});
+  }
+
+  return previous_level;
 }
 
-/*
- * Only used during index creation. Current level is required since index is still being built.
- */
-Node* find_nearest_leaf_from_level(float*& query, Node *node, unsigned int depth)
-{
-	//If at bottom level
-  if (depth == 0) {
-		return node;
-	}
-
-	// continue down to next level
-  Node* nearest = get_closest_node(node->children, query);
-	return find_nearest_leaf_from_level(query, nearest, depth - 1);
-}
-
-Node* find_nearest_leaf(float*& query, std::vector<Node>& nodes)
+Node* find_nearest_leaf(const float* query, std::vector<Node>& nodes)
 {
   Node* closest_cluster = get_closest_node(nodes, query);
 
@@ -86,13 +86,13 @@ Node* find_nearest_leaf(float*& query, std::vector<Node>& nodes)
 /*
  * Assumes the given vector of nodes is not empty
  */
-Node* get_closest_node(std::vector<Node>& nodes, float* query)
+Node* get_closest_node(std::vector<Node>& nodes, const float* query)
 {
   float max = globals::FLOAT_MAX;
   Node* closest = nullptr;
 
   for (Node& node : nodes) {
-    const float distance = distance::g_distance_function(query, node.points[0].descriptor);
+    const float distance = distance::g_distance_function(query, node.get_leader().descriptor);
 
     if (distance < max) {
       max = distance;
@@ -100,15 +100,6 @@ Node* get_closest_node(std::vector<Node>& nodes, float* query)
     }
   }
   return closest;
-}
-
-std::vector<Node>& insert_points(std::vector<Node>& index_top_level, std::vector<Point>& points, unsigned int from_index)
-{
-  for (unsigned int i = from_index; i < points.size(); ++i) {
-    Node* nearest = find_nearest_leaf(points[i].descriptor, index_top_level);
-    nearest->points.emplace_back(points[i]);
-	}
-  return index_top_level;
 }
 
 }
