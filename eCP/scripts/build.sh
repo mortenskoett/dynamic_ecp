@@ -6,4 +6,5 @@ echo "Building Cmake..."
 
 cd ..
 [ ! -d ./build ] && echo "Build directory does not exist... Exiting." && exit 1
-cmake --configure --build ./build
+cd ./build
+cmake --build ./
