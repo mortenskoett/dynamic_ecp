@@ -12,17 +12,17 @@ int main(int argc, char* argv[])
 //    const int metric = 0;      // Distance metric - 0 = euclidean - 1 = angular - 2 = euclidean with early halting
 //    const int k = 100;         // number points to return
 //    const int b = 40;          // number clusters to search
-//    const int p = 150000;      // number of vectors
+//    const int p = 150'000;     // number of vectors
 //    const int d = 128;         // dimensions of vector
 //    const int r = 1000;        // upper bound of generated vectors
-//    const int qs = 15000;      // queries to make on created index
+//    const int qs = 15'000;     // queries to make on created index
 
     /* For debugging params */
      const int L = 2;            // L parameter - number of levels in index
      const int metric = 2;       // Distance metric - 0 = euclidean - 1 = angular - 2 = euclidean with early halting
      const int k = 2;            // number points to return
      const int b = 2;            // number clusters to search
-     unsigned int p = 1000;           // number of vectors
+     const int p = 120'000;           // number of vectors
      const int d = 128;          // dimensions of vector
      const int r = 1000;         // upper bound of generated vectors
      const int qs = 15;          // queries to make on created index
