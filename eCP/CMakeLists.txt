@@ -17,13 +17,13 @@ if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
   add_compile_options(${generalflags})
 
   if (${CMAKE_BUILD_TYPE} MATCHES Release)
-    list(APPEND rflags "-O3" "-fPIC" )
+    list(APPEND relflags "-O3" "-fPIC" )
     message("Build type is: " ${CMAKE_BUILD_TYPE})
     message("Appending further flags: " ${relflags})
     add_compile_options(${relflags})
 
   elseif (${CMAKE_BUILD_TYPE} MATCHES RelWithDebInfo)
-    list(APPEND rdflags "-g" "-O3" "-fPIC" )
+    list(APPEND reldebflags "-g" "-O3" "-fPIC" )
     message("Build type is: " ${CMAKE_BUILD_TYPE})
     message("Appending further flags: " ${reldebflags})
     add_compile_options(${reldebflags})
@@ -49,11 +49,18 @@ add_subdirectory(extern)
 add_subdirectory(tests)
 add_subdirectory(swig)
 
+# ------ Good reminders below ------
 # Helpers
 # message("CMAKE_CXX_FLAGS_DEBUG is ${CMAKE_CXX_FLAGS_DEBUG}")
 # message("CMAKE_CXX_FLAGS_RELEASE is ${CMAKE_CXX_FLAGS_RELEASE}")
 # message("CMAKE_CXX_FLAGS_RELWITHDEBINFO is ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
 # message("CMAKE_CXX_FLAGS_MINSIZEREL is ${CMAKE_CXX_FLAGS_MINSIZEREL}")
+
+# Typical result from above
+#CMAKE_CXX_FLAGS_DEBUG is -g
+#CMAKE_CXX_FLAGS_RELEASE is -O3 -DNDEBUG
+#CMAKE_CXX_FLAGS_RELWITHDEBINFO is -O2 -g -DNDEBUG
+#CMAKE_CXX_FLAGS_MINSIZEREL is -Os -DNDEBUG
 
 # Other flags
 # list(APPEND extremewarnflags
