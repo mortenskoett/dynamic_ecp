@@ -12,8 +12,7 @@ namespace utilities {
 /**
  * @brief get_random_unique_indexes returns a set of uniquely sampled indexes from
  * the range 0..container_size.
- * It is assumed that amount is non-negative and greater than container_size,
- * otherwise an invalid argument exception is thrown.
+ * It is assumed that amount is greater than zero but less than or equal to container_size.
  * @param amount is the number of samples to get.
  * @param container_size is the limit of the range of samples to pick from.
  * @return a vector containing the unique samples obtained from container_size.

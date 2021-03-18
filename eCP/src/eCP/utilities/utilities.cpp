@@ -2,7 +2,7 @@
 #include <cmath>
 #include <iostream>
 #include <random>
-#include <stdexcept>
+#include <cassert>
 
 #include <eCP/utilities/utilities.hpp>
 
@@ -13,8 +13,8 @@ namespace utilities {
 // vector as return type.
 std::vector<unsigned> get_random_unique_indexes(int amount, int container_size)
 {
-  if (amount < 0) { throw std::invalid_argument("Amount must be a positive number."); }
-  if (amount > container_size) { throw std::invalid_argument("Amount must be less than container_size"); }
+  assert(amount > 0 && "Amount must be greater than zero.");
+  assert(amount <= container_size && "Amount must be less than or equal to container_size");
 
   std::vector<unsigned> collected_samples;
   collected_samples.reserve(amount);
