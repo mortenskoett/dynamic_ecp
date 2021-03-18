@@ -9,25 +9,24 @@
   */
 namespace pre_processing 
 {
-	/**
-	* creates the cluster index from dataset and level parameter L
-  * @param dataset is the collection of all points to be placed in the created index
-  * @param L the number of levels of the index
-	* @returns top_level nodes of the top level of the index
-	*/
+/**
+  * @brief create_index creates the index from a dataset and a parameter L denoting number of levels.
+  * @param dataset is the collection of points to be placed in the created index.
+  * @param L is the number of levels the index should have.
+  * @returns the topmost list of Nodes in the index.
+   */
   std::vector<Node> create_index(const std::vector<std::vector<float>> &descriptors, unsigned L);
 
-	/**
-  * traverses index structure recursively to find the leaf closest to the given query vector.
+  /**
+  * @brief find_nearest_leaf traverses the index recursively to find the leaf closest to the given query vector.
   * @param query is the query vector looking for a closest cluster.
-  * @param nodes is the children list of any internal node in the index.
-	* @return nearest leaf node to the query point
-	*/
+  * @param nodes is the children vector of any internal node in the index.
+  * @return the nearest leaf (Node) to the given query point.
+   */
   Node* find_nearest_leaf(const float* query, std::vector<Node>& nodes);
 
   /**
-   * @brief get_closest_node compares each node in nodes to query
-   * and returns the one that is closest.
+   * @brief get_closest_node compares each node in nodes to query and returns the one that is closest.
    * The function assumes that the vector of nodes is not empty.
    * @param nodes is a vector nodes.
    * @param query is the query feacture vector.

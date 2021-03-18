@@ -10,8 +10,21 @@
 
 namespace pre_processing 
 {
+/*
+ * This function will create an index by a 3-step process:
+ * 1) Firstly, random indexes for leaders are generated for each level.
+ * 2) Then each level is constructed from the level below. Initially the bottom level L is
+ * constructed from the input dataset. Then level L-1 is constructed similarly, but from
+ * nodes from level L. Now all nodes from level L are added to level L-1 using a distance
+ * function to place them in the correct place. This process repeats for all levels up to
+ * and inclusive level 1.
+ * 3) All input vectors are added to the index except those that are already there due to
+ * the Node ctor adding the leader to the Points vector.
+ */
 std::vector<Node> create_index(const std::vector<std::vector<float>> &dataset, unsigned int L)
 {
+  // ** 1)
+
   const unsigned int average_cluster_size = ceil(pow(dataset.size(), (1.00 / (L + 1.00))));    // Each cluster will represent on average, n^( 1/(L+1) ) points
   std::vector<std::vector<unsigned>> random_leader_indexes(L);   // Indexes picked randomly from input dataset used as leaders for each level
 
@@ -29,6 +42,8 @@ std::vector<Node> create_index(const std::vector<std::vector<float>> &dataset, u
     // Set to the size of current level, because indexes are found from the level below
     container_size = level_size;
   }
+
+  // ** 2)
 
   std::vector<Node> previous_level;   // Used to maintain the level below when building current level
 
@@ -61,10 +76,12 @@ std::vector<Node> create_index(const std::vector<std::vector<float>> &dataset, u
     previous_level.swap(current_level);
   }
 
+  // ** 3)
+
   // Add all points from input dataset to the index incl those duplicated in the index construction.
   unsigned id{0};
   for (auto &descriptor : dataset) {
-    auto *leaf = find_nearest_leaf(descriptor.data(), previous_level);
+    auto *leaf = find_nearest_leaf(descriptor.data(), previous_level);    // FIXME: Optional optimization: Use a set to contain all leader id's. Then we don't have to call distance function for those.
     if (id != leaf->get_leader().id) {    // Because the leader was added to the cluster when the index was built
       leaf->points.emplace_back(Point{descriptor.data(), id});
     }
