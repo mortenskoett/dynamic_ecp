@@ -12,7 +12,8 @@ namespace pre_processing
 {
 std::vector<Node> create_index(const std::vector<std::vector<float>> &dataset, unsigned int L)
 {
-  std::vector<std::vector<unsigned>> leader_indexes(L);   // Indexes picked randomly from input dataset used as leaders for each level
+  const unsigned int average_cluster_size = ceil(pow(dataset.size(), (1.00 / (L + 1.00))));    // Each cluster will represent on average, n^( 1/(L+1) ) points
+  std::vector<std::vector<unsigned>> random_leader_indexes(L);   // Indexes picked randomly from input dataset used as leaders for each level
 
   // Computing random indexes bottom-up, leader_indexes[0] is level 1.
   unsigned container_size = dataset.size();
@@ -22,8 +23,8 @@ std::vector<Node> create_index(const std::vector<std::vector<float>> &dataset, u
     unsigned level_size = ceil(pow(dataset.size(), (i / (L + 1.00))));
 
     // Pick random leaders for current level
-    leader_indexes[i-1].reserve(level_size);
-    leader_indexes[i-1] = utilities::get_random_unique_indexes(level_size, container_size);    // TODO: Time this to see if RVO or move/copy ctors are being utilized
+    random_leader_indexes[i-1].reserve(level_size);
+    random_leader_indexes[i-1] = utilities::get_random_unique_indexes(level_size, container_size);    // FIXME: Time this to see if RVO or move/copy ctors are being utilized
 
     // Set to the size of current level, because indexes are found from the level below
     container_size = level_size;
@@ -31,14 +32,16 @@ std::vector<Node> create_index(const std::vector<std::vector<float>> &dataset, u
 
   std::vector<Node> previous_level;   // Used to maintain the level below when building current level
 
-  for (auto it = leader_indexes.rbegin(); it != leader_indexes.rend(); ++it) {    // Using reverse_iterator because we need to start with bottom level
+  for (auto it = random_leader_indexes.rbegin(); it != random_leader_indexes.rend(); ++it) {    // Using reverse_iterator because we need to start with bottom level
     std::vector<Node> current_level;
-    current_level.reserve(it->size());
+    current_level.reserve(it->size());    // Allocate for already known number of leaders
 
     // Only for bottom level L
     if (previous_level.size() == 0) {
       for (auto index : *it) {
-        current_level.emplace_back(Node{Point{dataset[index].data(), index}});   // Pick from input dataset using index as Id of Point
+        auto cluster = Node{Point{dataset[index].data(), index}};   // Pick from input dataset using index as Id of Point
+        cluster.points.reserve(average_cluster_size);    // Allocate initial size of cluster
+        current_level.emplace_back(cluster);
       }
     }
 
@@ -46,7 +49,7 @@ std::vector<Node> create_index(const std::vector<std::vector<float>> &dataset, u
     else {
       for (auto index : *it) {
         auto* node = &previous_level[index];   // Pick previously randomly found nodes from level below to construct current level
-        current_level.emplace_back(Node{Point{node->get_leader().descriptor, node->get_leader().id}});    // To not copy children into current level
+        current_level.emplace_back(Node{Point{node->get_leader().descriptor, node->get_leader().id}});    // Reconstruct Point to not copy children/points into current level
       }
 
       // Add all nodes from below level as children of current level
@@ -62,11 +65,10 @@ std::vector<Node> create_index(const std::vector<std::vector<float>> &dataset, u
   unsigned id{0};
   for (auto &descriptor : dataset) {
     auto *leaf = find_nearest_leaf(descriptor.data(), previous_level);
-    if (id == leaf->get_leader().id) {    // Because the leader was added to the cluster when the index was built
-      id ++;
-      continue;
+    if (id != leaf->get_leader().id) {    // Because the leader was added to the cluster when the index was built
+      leaf->points.emplace_back(Point{descriptor.data(), id});
     }
-    leaf->points.emplace_back(Point{descriptor.data(), id++});
+    id++;
   }
 
   return previous_level;
