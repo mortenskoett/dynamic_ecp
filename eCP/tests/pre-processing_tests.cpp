@@ -4,6 +4,11 @@
 #include <eCP/index/shared/distance.hpp>
 #include <eCP/index/shared/globals.hpp>
 
+// Because we need to test functions only part of the compilation unit
+#include <eCP/index/pre-processing.cpp>
+
+TEST(pre_processing_tests, dummy) {
+}
 
 // FIXME: All of these tests need to be reimplemented
 
@@ -83,7 +88,7 @@
 //    }
 //}
 
-TEST(preprocessing_tests, get_closest_node_returns_closest_cluster)
+TEST(pre_processing_tests, get_closest_node_returns_closest_cluster)
 {
     distance::set_distance_function(distance::Metrics::EUCLIDEAN);
     globals::g_vector_dimensions = 3;
@@ -103,7 +108,7 @@ TEST(preprocessing_tests, get_closest_node_returns_closest_cluster)
     EXPECT_EQ(*actual->points[0].descriptor, *expected);
 }
 
-TEST(preprocessing_tests, get_closest_node_given_query_in_clusters_returns_same)
+TEST(pre_processing_tests, get_closest_node_given_query_in_clusters_returns_same)
 {
     distance::set_distance_function(distance::Metrics::EUCLIDEAN);
     globals::g_vector_dimensions = 3;
@@ -123,7 +128,7 @@ TEST(preprocessing_tests, get_closest_node_given_query_in_clusters_returns_same)
     EXPECT_EQ(*actual->points[0].descriptor, *expected);
 }
 
-TEST(preprocessing_tests, find_nearest_leaf_finds_nearest_cluster_in_2_level_index)
+TEST(pre_processing_tests, find_nearest_leaf_finds_nearest_cluster_in_2_level_index)
 {
     distance::set_distance_function(distance::Metrics::EUCLIDEAN);
     globals::g_vector_dimensions = 3;

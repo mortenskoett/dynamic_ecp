@@ -8,6 +8,38 @@
 #include <eCP/index/shared/globals.hpp>
 #include <eCP/utilities/utilities.hpp>
 
+/*
+ * Namespace containing testable helpers used to build the index.
+ */
+namespace pre_processing_helpers {
+
+/*
+ * Generates a set of random indexes used to pick leaders from the level below.
+ */
+std::vector<std::vector<unsigned>> generate_leaders_indexes(std::size_t dataset_size, unsigned L)
+{
+  std::vector<std::vector<unsigned>> random_leader_indexes(L);   // Indexes picked randomly from input dataset used as leaders for each level
+
+  // Computing random indexes bottom-up, leader_indexes[0] is level 1.
+  unsigned container_size = dataset_size;
+  for (unsigned i = L; i > 0; --i) {
+
+    // Calculate level sizes (i.e. how many clusters for level L)
+    unsigned level_size = ceil(pow(dataset_size, (i / (L + 1.00))));
+
+    // Pick random leaders for current level
+    random_leader_indexes[i-1].reserve(level_size);
+    random_leader_indexes[i-1] = utilities::get_random_unique_indexes(level_size, container_size);    // FIXME: Time this to see if RVO or move/copy ctors are being utilized
+
+    // Set to the size of current level, because indexes are found from the level below
+    container_size = level_size;
+  }
+
+  return random_leader_indexes;
+}
+
+}
+
 namespace pre_processing 
 {
 /*
@@ -26,27 +58,9 @@ std::vector<Node> create_index(const std::vector<std::vector<float>> &dataset, u
   // ** 1)
 
   const unsigned int average_cluster_size = ceil(pow(dataset.size(), (1.00 / (L + 1.00))));    // Each cluster will represent on average, n^( 1/(L+1) ) points
-  std::vector<std::vector<unsigned>> random_leader_indexes(L);   // Indexes picked randomly from input dataset used as leaders for each level
-
-  // Computing random indexes bottom-up, leader_indexes[0] is level 1.
-  unsigned container_size = dataset.size();
-  for (unsigned i = L; i > 0; --i) {
-
-    // Calculate level sizes (i.e. how many clusters for level L)
-    unsigned level_size = ceil(pow(dataset.size(), (i / (L + 1.00))));
-
-    // Pick random leaders for current level
-    random_leader_indexes[i-1].reserve(level_size);
-    random_leader_indexes[i-1] = utilities::get_random_unique_indexes(level_size, container_size);    // FIXME: Time this to see if RVO or move/copy ctors are being utilized
-
-    // Set to the size of current level, because indexes are found from the level below
-    container_size = level_size;
-  }
-
-  // ** 2)
+  const auto random_leader_indexes = pre_processing_helpers::generate_leaders_indexes(dataset.size(), L);   // FIXME: Assert that RVO is being used
 
   std::vector<Node> previous_level;   // Used to maintain the level below when building current level
-
   for (auto it = random_leader_indexes.rbegin(); it != random_leader_indexes.rend(); ++it) {    // Using reverse_iterator because we need to start with bottom level
     std::vector<Node> current_level;
     current_level.reserve(it->size());    // Allocate for already known number of leaders
@@ -122,3 +136,4 @@ Node* get_closest_node(std::vector<Node>& nodes, const float* query)
 }
 
 }
+
