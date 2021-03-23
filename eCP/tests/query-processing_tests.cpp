@@ -68,7 +68,7 @@ TEST(query_processing_tests, index_to_max_element_given_morethan_elem_returns_in
 
 TEST(query_processing_tests, find_k_nearest_points_given_k_1_returns_k_closest_points)
 {
-    distance::set_distance_function(distance::Metrics::EUCLIDEAN);
+    distance::set_distance_function(distance::Metric::EUCLIDEAN_OPT_UNROLL);
     globals::g_vector_dimensions = 3;
 
     std::vector<Node> root = {
@@ -93,7 +93,7 @@ TEST(query_processing_tests, find_k_nearest_points_given_k_1_returns_k_closest_p
 
 TEST(query_processing_tests, find_k_nearest_points_given_k_2_returns_k_closest_points)
 {
-    distance::set_distance_function(distance::Metrics::EUCLIDEAN);
+    distance::set_distance_function(distance::Metric::EUCLIDEAN_OPT_UNROLL);
     globals::g_vector_dimensions = 3;
 
     std::vector<Node> root = {
@@ -120,7 +120,10 @@ TEST(query_processing_tests, find_k_nearest_points_given_k_2_returns_k_closest_p
 
 TEST(query_processing_tests, find_b_nearest_clusters_given_L_b_1_returns_single_closest_cluster)
 {
-    float *query = new float[3]{3, 3, 3};
+    distance::set_distance_function(distance::Metric::EUCLIDEAN_OPT_UNROLL);
+    globals::g_vector_dimensions = 3;
+
+    Point query_point{new float[3]{3, 3, 3}, 1};
     unsigned int b = 1;
     unsigned int L = 1;
 
@@ -132,13 +135,13 @@ TEST(query_processing_tests, find_b_nearest_clusters_given_L_b_1_returns_single_
         Node{Point(new float[3]{9, 9, 9}, 4)},
     };
 
-    auto actual = query_processing::find_b_nearest_clusters(root, query, b, L);
+    auto actual = query_processing::find_b_nearest_clusters(root, query_point.descriptor, b, L);
 
-    EXPECT_TRUE(actual.size() == b);
-    EXPECT_TRUE(*actual[0]->points[0].descriptor == *query);
+    EXPECT_EQ(actual.size(), b);
+    EXPECT_EQ(actual[0]->points[0].id, query_point.id );
 }
 
-// FIXME: Need to be re-implemented with a helper func that goes through children lists and assert that elements are there
+// FIXME: Need to be re-implemented with a helper func that goes through children lists and assert that elements are there. Needed helper is implemented in namespace testhelpers.
 //TEST(query_processing_tests, find_b_nearest_clusters_given_L_2_b_2_returns_2_closest_cluster_containing_query)
 //{
 //    float *query = new float[3]{9.f, 9.f, 9.f};
@@ -155,11 +158,11 @@ TEST(query_processing_tests, find_b_nearest_clusters_given_L_b_1_returns_single_
 
 TEST(query_processing_tests, scan_node_children_given_b_1_returns_identical_closest_element)
 {
-    distance::set_distance_function(distance::Metrics::EUCLIDEAN);
+    distance::set_distance_function(distance::Metric::EUCLIDEAN_OPT_UNROLL);
     globals::g_vector_dimensions = 3;
-
-    float *query = new float[3]{3, 3, 3};
     unsigned int b = 1;
+
+    Point query_point{new float[3]{3, 3, 3}, 1};
 
     std::vector<Node> root = {
         Node{Point(new float[3]{1, 1, 1}, 0)},
@@ -171,18 +174,15 @@ TEST(query_processing_tests, scan_node_children_given_b_1_returns_identical_clos
 
     std::vector<Node*> next_level_best_nodes = {};
 
-    query_processing::scan_node(query, root, b, next_level_best_nodes);
+    query_processing::scan_node(query_point.descriptor, root, b, next_level_best_nodes);
 
-    float *expected = new float[3]{3, 3, 3};
-
-    EXPECT_TRUE(next_level_best_nodes.size() == b);
-    EXPECT_TRUE(*next_level_best_nodes[0]->points[0].descriptor == *expected);
-    delete[] expected;  // circumventing possible leak-warning.
+    EXPECT_EQ(next_level_best_nodes.size(), b);
+    EXPECT_EQ(next_level_best_nodes[0]->points[0].id, query_point.id);
 }
 
 TEST(query_processing_tests, scan_node_given_children_less_than_b_returns_everything)
 {
-    distance::set_distance_function(distance::Metrics::EUCLIDEAN);
+    distance::set_distance_function(distance::Metric::EUCLIDEAN_OPT_UNROLL);
     globals::g_vector_dimensions = 3;
 
     float *query = new float[3]{3, 3, 3};
@@ -203,7 +203,7 @@ TEST(query_processing_tests, scan_node_given_children_less_than_b_returns_everyt
 
 TEST(query_processing_tests, scan_node_given_b_2_returns_two_closest_elements)
 {
-    distance::set_distance_function(distance::Metrics::EUCLIDEAN);
+    distance::set_distance_function(distance::Metric::EUCLIDEAN_OPT_UNROLL);
     globals::g_vector_dimensions = 3;
 
     float *query = new float[3]{1, 1, 1};
