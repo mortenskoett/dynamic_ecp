@@ -22,6 +22,12 @@ if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
     message("Appending further flags: " ${rflags})
     add_compile_options(${rflags})
 
+  elseif (${CMAKE_BUILD_TYPE} MATCHES RelWithDebInfo)
+    list(APPEND rwdflags "-g" "-O3" "-fPIC" )
+    message("Build type is: " ${CMAKE_BUILD_TYPE})
+    message("Appending further flags: " ${rwdflags})
+    add_compile_options(${rwdflags})
+
   elseif (${CMAKE_BUILD_TYPE} MATCHES Debug)
     list(APPEND debugflags "-Wextra" "-Wpedantic")
     message("Build type is: " ${CMAKE_BUILD_TYPE})
