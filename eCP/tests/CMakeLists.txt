@@ -1,6 +1,6 @@
 include(GoogleTest)
 
-# -- The individual test files --
+# Test executables
 add_executable(eCP_tests
   # library
     distance_tests.cpp
@@ -39,6 +39,7 @@ target_include_directories(testHelperLib
 
 target_link_libraries(testHelperLib eCPLib)
 
+# Add tests to gtest
 add_test(
     NAME eCP_tests
     COMMAND eCP_tests
