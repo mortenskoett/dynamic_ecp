@@ -18,11 +18,6 @@ namespace pre_processing
   */
 Index* create_index(const std::vector<std::vector<float>> &descriptors, unsigned L);
 
-/**
-  *
-  * @param metric distance function metric
-  */
-  void setMetric(unsigned int& metric);
 }
 
 #endif // PRE_PROCESSING_H

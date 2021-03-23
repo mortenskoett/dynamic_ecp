@@ -1,4 +1,6 @@
 #include <cmath>
+#include <stdexcept>
+
 #include <eCP/index/shared/distance.hpp>
 
 /**
@@ -66,24 +68,6 @@ namespace distance
         return sums[0] + sums[1] + sums[2] + sums[3];
     }
 
-    Node* get_closest_node(std::vector<Node*>& nodes, float* query)
-    {
-        float closest = globals::FLOAT_MAX;
-        Node* best = nullptr;
-
-        for (Node* node : nodes)
-        {
-            const float distance = g_distance_function(query, node->points[0].descriptor,closest);
-            
-            if (distance <= closest)
-            {
-                closest = distance;
-                best = node;
-            }
-        }
-        return best;
-    }
-
     inline float angular_distance(const float* a, const float* b, const float& max_distance = -1)
     {
         float mul = 0.0, d_a = 0.0, d_b = 0.0;
@@ -100,15 +84,27 @@ namespace distance
         return std::acos(cosine_similarity);
     }
 
-    /**
-    * Set the used distance function.
-    */
-    void set_distance_function(Metrics func)
-    {
-        if (func == Metrics::EUCLIDEAN) g_distance_function = &euclidean_distance;
-        if (func == Metrics::EUCLIDEAN_UNROLL) g_distance_function = &euclidean_distance_unroll;
-        if(func == Metrics::EUCLIDEAN_HALT) g_distance_function = &euclidean_distance_halt;
-        if(func == Metrics::EUCLIDEAN_UNROLL_HALT) g_distance_function = &euclidean_distance_unroll_halt;
-        if (func == Metrics::ANGULAR) g_distance_function = &angular_distance;
+    void set_distance_function(Metric metric) {
+      auto is_dimensionality_divisable_by_8 = ((globals::g_vector_dimensions % 8) == 0) ? true : false;
+
+      switch (metric) {
+      case Metric::EUCLIDEAN_OPT_UNROLL:
+        if (is_dimensionality_divisable_by_8) { g_distance_function = &euclidean_distance_unroll; }
+        else { g_distance_function = &euclidean_distance; }
+        break;
+
+      case Metric::ANGULAR:
+        g_distance_function = &angular_distance;
+        break;
+
+      case Metric::EUCLIDEAN_HALT_OPT_UNROLL:
+        if (is_dimensionality_divisable_by_8) { g_distance_function = &euclidean_distance_unroll_halt; }
+        else { g_distance_function = &euclidean_distance_halt; }
+        break;
+
+      default:
+        throw std::invalid_argument("Invalid metric.");
+      }
     }
+
 }

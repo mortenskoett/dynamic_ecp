@@ -15,15 +15,16 @@ namespace eCP
 /*
  * Entry point for ANN-Benchmarks fit function.
  */
-Index* eCP_Index(const std::vector<std::vector<float>> &descriptors, unsigned int L, unsigned int metric)
+Index* eCP_Index(const std::vector<std::vector<float>> &descriptors, unsigned int L, unsigned int metric_)
 {
   if (L < 1) { throw std::invalid_argument("L >= 1 to build a valid index."); }
 
-  // Set descriptor dimension globally.
+  // Set dimensionality of descriptors globally.
 	globals::g_vector_dimensions = descriptors[0].size();
 
-	// Set metric function globally
-  pre_processing::setMetric(metric);
+  // Set distance functiona globally
+  auto metric = static_cast<distance::Metric>(metric_);
+  distance::set_distance_function(metric);
 
   // Build index
   Index *index = pre_processing::create_index(descriptors, L);
