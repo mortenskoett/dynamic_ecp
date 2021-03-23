@@ -28,7 +28,7 @@ Node* get_closest_node(std::vector<Node>& nodes, const float* query)
   Node* closest = nullptr;
 
   for (Node& node : nodes) {
-    const float distance = distance::g_distance_function(query, node.get_leader()->descriptor);
+    const float distance = distance::g_distance_function(query, node.get_leader()->descriptor, max);
 
     if (distance < max) {
       max = distance;
