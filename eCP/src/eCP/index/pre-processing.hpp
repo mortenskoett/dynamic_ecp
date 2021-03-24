@@ -1,8 +1,8 @@
 #ifndef PRE_PROCESSING_H
 #define PRE_PROCESSING_H
 
-#include <vector>
 #include <eCP/index/shared/data_structure.hpp>
+#include <vector>
 
 /*
  * contains functions used during the preprocessing phase.
