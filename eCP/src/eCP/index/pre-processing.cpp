@@ -119,7 +119,7 @@ std::vector<Node> build_index(const VectorFloat2D &dataset, const VectorUnsigned
     else {
       for (auto index : *it) {
         auto* node = &previous_level[index];   // Pick previously randomly found nodes from level below to construct current level
-        current_level.emplace_back(Node{node->points[0]});    // Reconstruct Point to not copy children/points into current level
+        current_level.emplace_back(Node{Point{node->get_leader()->descriptor, node->get_leader()->id}});    // Reconstruct Node to not copy children/points into current level
       }
 
       // Add all nodes from below level as children of current level
