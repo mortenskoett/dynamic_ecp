@@ -34,4 +34,4 @@ unsigned count_clusters(Node root, unsigned parent_children)
   return parent_children;
 }
 
-}
+}  // namespace testhelpers

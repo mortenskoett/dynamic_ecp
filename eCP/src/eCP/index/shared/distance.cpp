@@ -1,5 +1,5 @@
-#include <cmath>
 #include <eCP/index/shared/distance.hpp>
+#include <cmath>
 
 namespace distance
 {

@@ -1,15 +1,14 @@
 #ifndef DISTANCE_H
 #define DISTANCE_H
 
+#include <eCP/index/shared/data_structure.hpp>
 #include <cmath>
 #include <vector>
-#include <eCP/index/shared/data_structure.hpp>
 
 /**
  * Namespaces contains distance functions used in the index.
  */
-namespace distance 
-{
+namespace distance {
 
 /**
  * External linkage. Globally scoped pointer to the used distance function.
