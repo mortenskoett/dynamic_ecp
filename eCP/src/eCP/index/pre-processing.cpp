@@ -163,13 +163,74 @@ std::vector<Node> fill_clusters(std::vector<Node> top_level, const VectorFloat2D
  */
 std::vector<Node> create_index(const VectorFloat2D &dataset, unsigned int L)
 {
-  const auto random_leader_indexes = generate_leaders_indexes(dataset.size(), L);
   const unsigned int average_cluster_size = ceil(pow(dataset.size(), (1.00 / (L + 1.00))));    // Each cluster will represent on average, n^( 1/(L+1) ) points
 
-  std::vector<Node> top_level = build_index(dataset, random_leader_indexes, average_cluster_size);
-  std::vector<Node> top_level_filled = fill_clusters(top_level, dataset);   // Utilizes RVO
+  // Computing random indexes bottom-up, leader_indexes[0] is level 1.
+  VectorUnsigned2D leader_indexes(L);   // Indexes picked randomly from input dataset used as leaders for each level
 
-  return top_level_filled;
+  unsigned container_size = dataset.size();
+  for (unsigned i = L; i > 0; --i) {
+
+    // Calculate level sizes (i.e. how many clusters for level L)
+    unsigned level_size = ceil(pow(dataset.size(), (i / (L + 1.00))));
+
+    // Pick random leaders for current level
+    leader_indexes[i-1].reserve(level_size);
+    leader_indexes[i-1] = utilities::get_random_unique_indexes(level_size, container_size);    // FIXME: Time this to see if RVO or move/copy ctors are being utilized
+
+    // Set to the size of current level, because indexes are found from the level below
+    container_size = level_size;
+  }
+
+  std::vector<Node> previous_level;   // Used to maintain the level below when building current level
+
+  for (auto it = leader_indexes.rbegin(); it != leader_indexes.rend(); ++it) {    // Using reverse_iterator because we need to start with bottom level
+    std::vector<Node> current_level;
+    current_level.reserve(it->size());    // Allocate for already known number of leaders
+
+    // Only for bottom level L
+    if (previous_level.size() == 0) {
+      for (auto index : *it) {
+        auto cluster = Node{Point{dataset[index].data(), index}};   // Pick from input dataset using index as Id of Point
+        cluster.points.reserve(average_cluster_size);    // Allocate initial size of cluster
+        current_level.emplace_back(cluster);
+      }
+    }
+
+    // For all levels above L (i.e. L-1...1)
+    else {
+      for (auto index : *it) {
+        auto* node = &previous_level[index];   // Pick previously randomly found nodes from level below to construct current level
+        current_level.emplace_back(Node{node->points[0]});    // Reconstruct Point to not copy children/points into current level
+      }
+
+      // Add all nodes from below level as children of current level
+      for (auto node : previous_level) {
+        get_closest_node(current_level, node.get_leader()->descriptor)->children.emplace_back(node);
+      }
+    }
+    previous_level.swap(current_level);
+  }
+
+  // Add only points not already in there from the index construction.
+  unsigned id{0};
+  for (auto &descriptor : dataset) {
+    auto *leaf = find_nearest_leaf(descriptor.data(), previous_level);    // FIXME: Optional optimization: Use a set to contain all leader id's. Then we don't have to call distance function for those.
+
+    if (id != leaf->get_leader()->id) {    // Because the leader was added to the cluster when the index was built
+      leaf->points.emplace_back(Point{descriptor.data(), id});
+    }
+    id++;
+  }
+  return previous_level;
+
+//  const auto random_leader_indexes = generate_leaders_indexes(dataset.size(), L);
+//  const unsigned int average_cluster_size = ceil(pow(dataset.size(), (1.00 / (L + 1.00))));    // Each cluster will represent on average, n^( 1/(L+1) ) points
+
+//  std::vector<Node> top_level = build_index(dataset, random_leader_indexes, average_cluster_size);
+//  std::vector<Node> top_level_filled = fill_clusters(top_level, dataset);   // Utilizes RVO
+
+//  return top_level_filled;
 }
 
 }   // pre_processing
