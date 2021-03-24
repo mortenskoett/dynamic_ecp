@@ -29,9 +29,9 @@ Index* eCP_Index(const std::vector<std::vector<float>> &descriptors, unsigned in
   }
 
   // Build index
-  Index *index = pre_processing::create_index(descriptors, L);
+  auto top_level = pre_processing::create_index(descriptors, L);
 
-  return index;
+  return new Index(L, top_level);
 }
 
 /*

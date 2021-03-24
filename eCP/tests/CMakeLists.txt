@@ -13,7 +13,6 @@ add_executable(eCP_tests
     helpers/testhelpers_tests.cpp
 )
 
-
 # -- Link required libraries to the test suite --
 target_link_libraries(eCP_tests
   debugLib

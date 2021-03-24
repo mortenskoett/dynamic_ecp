@@ -95,9 +95,9 @@ VectorUnsigned2D generate_leaders_indexes(const std::size_t dataset_size, const 
  * @param dataset is the set of feature vectors to initiate the index with.
  * @param leader_indexes is a vector of vecors containing leaders indexes for each level.
  * @param cluster_alloc_size is the size each internal node/cluster will be allocated with.
- * @return
+ * @return a vector representing the topmost level in the index, L=1.
  */
-std::vector<Node> build_index(const VectorFloat2D &dataset, const VectorUnsigned2D &leader_indexes,
+std::vector<Node> build_index(const VectorFloat2D &dataset, const VectorUnsigned2D leader_indexes,
                               const unsigned cluster_alloc_size)
 {
   std::vector<Node> previous_level;   // Used to maintain the level below when building current level
@@ -119,7 +119,7 @@ std::vector<Node> build_index(const VectorFloat2D &dataset, const VectorUnsigned
     else {
       for (auto index : *it) {
         auto* node = &previous_level[index];   // Pick previously randomly found nodes from level below to construct current level
-        current_level.emplace_back(Node{Point{node->get_leader()->descriptor, node->get_leader()->id}});    // Reconstruct Point to not copy children/points into current level
+        current_level.emplace_back(Node{node->points[0]});    // Reconstruct Point to not copy children/points into current level
       }
 
       // Add all nodes from below level as children of current level
@@ -134,40 +134,42 @@ std::vector<Node> build_index(const VectorFloat2D &dataset, const VectorUnsigned
 }
 
 /**
- * @brief fill_clusters fills the cluster of the index with points from the input
+ * @brief fill_clusters fills the clusters of the index with points from the input
  * dataset. All input vectors are added to the index except those that are already
  * there due to how Nodes are currently instantiated.
+ * It is pass-by-value to utilize RVO.
  * @param index is the index worked on.
  * @param dataset is the dataset to insert into index.
+ * @returns a vector representing the top level but filled with points from dataset.
  */
-void fill_clusters(Index *index, const VectorFloat2D &dataset)
+std::vector<Node> fill_clusters(std::vector<Node> top_level, const VectorFloat2D &dataset)
 {
-  // Add all points from input dataset to the index incl those duplicated in the index construction.
+  // Add only points not already in there from the index construction.
   unsigned id{0};
   for (auto &descriptor : dataset) {
-    auto *leaf = find_nearest_leaf(descriptor.data(), index->top_level);    // FIXME: Optional optimization: Use a set to contain all leader id's. Then we don't have to call distance function for those.
+    auto *leaf = find_nearest_leaf(descriptor.data(), top_level);    // FIXME: Optional optimization: Use a set to contain all leader id's. Then we don't have to call distance function for those.
 
     if (id != leaf->get_leader()->id) {    // Because the leader was added to the cluster when the index was built
       leaf->points.emplace_back(Point{descriptor.data(), id});
     }
     id++;
   }
+  return top_level;
 }
 
 /*
  * Create index API function.
+ * It is pass-by-value to utilize RVO.
  */
-Index* create_index(const VectorFloat2D &dataset, unsigned int L)
+std::vector<Node> create_index(const VectorFloat2D &dataset, unsigned int L)
 {
   const auto random_leader_indexes = generate_leaders_indexes(dataset.size(), L);
-
   const unsigned int average_cluster_size = ceil(pow(dataset.size(), (1.00 / (L + 1.00))));    // Each cluster will represent on average, n^( 1/(L+1) ) points
-  Index *index =
-      new Index(L, build_index(dataset, random_leader_indexes, average_cluster_size));   // Adding levels to Index type using RVO/move semantics
 
-  fill_clusters(index, dataset);
+  std::vector<Node> top_level = build_index(dataset, random_leader_indexes, average_cluster_size);
+  std::vector<Node> top_level_filled = fill_clusters(top_level, dataset);   // Utilizes RVO
 
-  return index;
+  return top_level_filled;
 }
 
 }   // pre_processing

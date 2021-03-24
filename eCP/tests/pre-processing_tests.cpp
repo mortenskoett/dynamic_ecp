@@ -67,12 +67,10 @@ TEST(pre_processing_helpers_tests, fill_clusters_given_dataset_with_L_2_leaders_
   // act
   auto leader_indexes = pre_processing::generate_leaders_indexes(dataset_size, L);
   auto first_level = pre_processing::build_index(dataset, leader_indexes, cluster_alloc_size);
-  auto index = Index(L, first_level);
-
-  pre_processing::fill_clusters(&index, dataset);
+  auto first_level_filled = pre_processing::fill_clusters(first_level, dataset);
 
   auto root = Node{Point{{3,3,3}, 100}};  // FIXME: Remove this when the index uses a single Node as root node
-  root.children.swap(index.top_level);
+  root.children.swap(first_level_filled);
 
   auto result = testhelpers::count_points_in_clusters(root);
 

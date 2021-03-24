@@ -14,7 +14,7 @@ unsigned count_points_in_clusters(Node root)
   unsigned total{0};
 
   if (root.children.empty()) {
-    total += root.points.size();
+    return root.points.size();
   }
   else {
     for (auto& node : root.children) {
