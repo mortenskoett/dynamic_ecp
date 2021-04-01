@@ -99,7 +99,7 @@ namespace pre_processing {
  * 3) All input vectors are added to the index except those that are already there due to
  * the Node ctor adding the leader to the Points vector.
  */
-std::vector<Node> create_index(const std::vector<std::vector<float>>& dataset, unsigned int L)
+Index* create_index(const std::vector<std::vector<float>> &dataset, unsigned int L)
 {
   // ** 1)
   // Each cluster will represent on average, n^( 1/(L+1) ) points
@@ -157,7 +157,13 @@ std::vector<Node> create_index(const std::vector<std::vector<float>>& dataset, u
     id++;
   }
 
-  return previous_level;
+  // Pick random node from top_level children to be used as root of index
+  const auto root_node_index = utilities::get_random_unique_indexes(1, previous_level.size())[0];
+  auto root_point = previous_level[root_node_index].get_leader();
+  auto root_node = Node{*root_point};
+  root_node.children.swap(previous_level);    // Insert index levels as children of root
+
+  return new Index(L, root_node);
 }
 
 }  // namespace pre_processing
