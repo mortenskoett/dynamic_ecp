@@ -30,9 +30,8 @@ TEST(pre_processing_tests, create_index_given_dataset_and_L_2_leaders_returns_co
   auto leader_indexes = pre_processing_helpers::generate_leaders_indexes(dataset_size, L);
   auto first_level = pre_processing::create_index(dataset, L);
 
-  auto root =
-      Node{Point{{3, 3, 3}, 100}};  // FIXME: Remove this when the index uses a single Node as root node
-  root.children.swap(first_level);
+  auto root = Node{Point{{3,3,3}, 100}};  // FIXME: Remove this when the index uses a single Node as root node
+  root.children.swap(first_level->root.children);
 
   auto result = testhelpers::measure_depth_from(root);
 
@@ -60,9 +59,8 @@ TEST(pre_processing_tests,
   auto leader_indexes = pre_processing_helpers::generate_leaders_indexes(dataset_size, L);
   auto first_level = pre_processing::create_index(dataset, L);
 
-  auto root =
-      Node{Point{{3, 3, 3}, 100}};  // FIXME: Remove this when the index uses a single Node as root node
-  root.children.swap(first_level);
+  auto root = Node{Point{{3,3,3}, 100}};  // FIXME: Remove this when the index uses a single Node as root node
+  root.children.swap(first_level->root.children);
 
   auto result = testhelpers::count_points_in_clusters(root);
 

@@ -25,11 +25,11 @@ Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned in
     auto metric = static_cast<distance::Metric>(metric_);
     distance::set_distance_function(metric);
 
-    // Build index
-    std::vector<Node> index = pre_processing::create_index(descriptors, L);
+  // Build index
+  Index* index = pre_processing::create_index(descriptors, L);
 
-    return new Index(L, index);
-  }
+  return index;
+}
 
 /*
  * Entry point for ANN-Benchmarks query function. SWIG converts python list to std::vector
@@ -40,7 +40,7 @@ std::pair<std::vector<unsigned int>, std::vector<float>> query(Index* index, std
   // internal data structure uses float pointer instead of vectors
   float* q = query.data();
 
-  auto nearest_points = query_processing::k_nearest_neighbors(index->top_level, q, k, b, index->L);
+  auto nearest_points = query_processing::k_nearest_neighbors(index->root.children, q, k, b, index->L);
 
   // unzip since id are only needed for ANN-Benchmarks
   std::vector<unsigned int> nearest_indexes = {};
