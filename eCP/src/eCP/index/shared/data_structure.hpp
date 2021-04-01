@@ -83,8 +83,8 @@ struct Node {
  */
 struct Index {
   unsigned L;
-  std::vector<Node> top_level;
-  Index(unsigned L_, std::vector<Node> top_level_);
+  Node root;
+  Index(unsigned L_, Node root_node);
 };
 
 #endif  // DATA_STRUCTURE_H
