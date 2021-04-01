@@ -15,7 +15,7 @@ namespace pre_processing
   * @param L is the number of levels the index should have.
   * @returns the topmost vector of Nodes equal to level 1 in the index.
   */
-std::vector<Node> create_index(const std::vector<std::vector<float>> &descriptors, unsigned L);
+Index* create_index(const std::vector<std::vector<float>> &descriptors, unsigned L);
 
 }
 

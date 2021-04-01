@@ -62,6 +62,6 @@ Point* Node::get_leader() {
 /*
  * Index data type
  */
-Index::Index(unsigned L_, std::vector<Node> top_level_)
-  : L(L_), top_level(std::move(top_level_))
+Index::Index(unsigned L_, Node root_node)
+  : L(L_), root(std::move(root_node))
 {}
