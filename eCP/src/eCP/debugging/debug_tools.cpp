@@ -1,13 +1,22 @@
+#include <cmath>
 #include <eCP/debugging/debug_tools.hpp>
 #include <eCP/index/shared/globals.hpp>
-#include <cmath>
 #include <iostream>
 #include <queue>
 
 namespace debugging {
 
-void print_query_results(std::pair<std::vector<unsigned int>, std::vector<float>>& result, std::vector<float>& query, unsigned int k,
-                         const std::vector<Point>& S) {
+void print_query_results(std::pair<std::vector<unsigned int>, std::vector<float>>& result,
+                         std::vector<float>& query, unsigned int k,
+                         const std::vector<std::vector<float>>& dataset)
+{
+  // FIXME: !!! This quick fix will be very expensive for large data sets
+  std::vector<Point> dataset_points;
+  unsigned id{0};
+  for (auto& descriptor : dataset) {
+    dataset_points.emplace_back(Point{descriptor.data(), id++});
+  }
+
   std::cout << "k = " << k << "\nQuery: ";
 
   // Print query
@@ -15,16 +24,17 @@ void print_query_results(std::pair<std::vector<unsigned int>, std::vector<float>
   for (unsigned int i = 0; i < globals::g_vector_dimensions; i++) {
     q[i] = query[i];
   }
-  Point pq = Point(q, -1);  // FIXME: Misuse of unsigned int
+  Point pq = Point(q, 0);
 
   print_point(pq);
 
-  std::cout << "\n\nresult from " << S.size() << " points\n";
+  std::cout << "\n\n"
+            << "Result from dataset of " << dataset_points.size() << " points:\n";
 
   // Print results
   for (unsigned int i = 0; i < result.first.size(); ++i) {
     unsigned int id = result.first[i];
-    Point p = S[id];
+    Point p = dataset_points[id];
     print_point(p);
     std::cout << ", " << result.second[i] << "\n";
   }
@@ -32,7 +42,8 @@ void print_query_results(std::pair<std::vector<unsigned int>, std::vector<float>
   delete[] q;
 }
 
-void print_point(Point& p) {
+void print_point(Point& p)
+{
   std::cout << "[";
   auto desc = p.descriptor;
   for (unsigned int i = 0; i < globals::g_vector_dimensions; i++) {
@@ -45,7 +56,8 @@ void print_point(Point& p) {
   std::cout << "]";
 }
 
-void print_points(std::vector<Point>& points) {
+void print_points(std::vector<Point>& points)
+{
   for (Point& i : points) {
     print_point(i);
     std::cout << "\n";
@@ -54,7 +66,8 @@ void print_points(std::vector<Point>& points) {
 
 bool is_leaf(Node& node) { return node.children.empty(); }
 
-void print_cluster(Node& c, const unsigned int d) {
+void print_cluster(Node& c, const unsigned int d)
+{
   if (globals::g_vector_dimensions < 5) {
     auto p = Point(c.points[0].descriptor, -1);
     print_point(p);
@@ -67,7 +80,8 @@ void print_cluster(Node& c, const unsigned int d) {
       for (Point& p : c.points) {
         print_point(p);
       }
-    } else {
+    }
+    else {
       std::cout << c.points.size() << " points";
     }
 
@@ -80,7 +94,8 @@ void print_cluster(Node& c, const unsigned int d) {
     auto space = std::string(d * 4, ' ');
     if (!is_leaf(i)) {
       std::cout << space << "C";
-    } else {
+    }
+    else {
       std::cout << space << "L";
     }
 
@@ -88,7 +103,8 @@ void print_cluster(Node& c, const unsigned int d) {
   }
 }
 
-void print_clusters(std::vector<Node>& clusters) {
+void print_clusters(std::vector<Node>& clusters)
+{
   for (Node& i : clusters) {
     std::cout << "R";
     print_cluster(i, 1);
@@ -101,7 +117,8 @@ void print_clusters(std::vector<Node>& clusters) {
  * Levels prints for small levels sizes
  * @param root Top level of index
  */
-void print_index_levels(std::vector<Node>& root) {
+void print_index_levels(std::vector<Node>& root)
+{
   // Standard level order traversal code
   // using queue
   std::queue<Node> q;  // Create a queue
@@ -121,7 +138,8 @@ void print_index_levels(std::vector<Node>& root) {
 
       if (is_leaf(node)) {
         std::cout << " [L: " << node.points.size() << " ]";
-      } else
+      }
+      else
         std::cout << " [N: " << node.children.size() << "] ";
 
       // Enqueue all children of the dequeued item

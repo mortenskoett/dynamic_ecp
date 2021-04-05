@@ -3,6 +3,7 @@
 
 #include <eCP/index/shared/data_structure.hpp>
 #include <cmath>
+#include <eCP/index/shared/data_structure.hpp>
 #include <vector>
 
 /**
@@ -26,6 +27,6 @@ enum Metric { EUCLIDEAN_OPT_UNROLL = 0, ANGULAR, EUCLIDEAN_HALT_OPT_UNROLL };
  */
 void set_distance_function(Metric);
 
-}
+}  // namespace distance
 
 #endif  // DISTANCE_H

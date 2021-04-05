@@ -1,7 +1,7 @@
 #include <eCP/utilities/H5Easy/H5Easy.h>
-#include <eCP/utilities/utilities.hpp>
 #include <cassert>
 #include <cmath>
+#include <eCP/utilities/utilities.hpp>
 #include <iostream>
 #include <queue>
 #include <random>
@@ -20,7 +20,7 @@ std::vector<unsigned> get_random_unique_indexes(int amount, int container_size)
   collected_samples.reserve(amount);
 
   std::unordered_set<int> visited_samples;
-  std::random_device random_seed;   // Will be used to obtain a seed for the random number engine.
+  std::random_device random_seed;         // Will be used to obtain a seed for the random number engine.
   std::mt19937 generator(random_seed());  // Standard mersenne_twister_engine seeded with rd().
   int start = container_size - amount;
 
@@ -34,14 +34,16 @@ std::vector<unsigned> get_random_unique_indexes(int amount, int container_size)
       collected_samples.emplace_back(t);
     }
     else {
-      visited_samples.insert(j);    // Found.
+      visited_samples.insert(j);  // Found.
       collected_samples.emplace_back(j);
     }
   }
   return collected_samples;
 }
 
-std::vector<std::vector<float>> generate_descriptors(const unsigned int count, const unsigned int dimension, const unsigned int upper_bound) {
+std::vector<std::vector<float>> generate_descriptors(const unsigned int count, const unsigned int dimension,
+                                                     const unsigned int upper_bound)
+{
   std::vector<std::vector<float>> vector_list;
   for (unsigned int i = 0; i < count; i++) {
     std::vector<float> point_vector;
@@ -56,7 +58,8 @@ std::vector<std::vector<float>> generate_descriptors(const unsigned int count, c
   return vector_list;
 }
 
-std::vector<std::vector<float>> load_hdf5_file(std::string& path, std::string& dataset) {
+std::vector<std::vector<float>> load_hdf5_file(std::string& path, std::string& dataset)
+{
   LoadH5 data;
   data.setFileName(path);
   data.setVarName(dataset);
