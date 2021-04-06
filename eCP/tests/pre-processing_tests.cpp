@@ -11,29 +11,22 @@
  * pre_processing_tests
  */
 
-TEST(pre_processing_tests, create_index_given_dataset_and_L_2_leaders_returns_correct_depth_of_index)
+TEST(pre_processing_tests,
+     create_index_given_dataset_and_sc2_sn2_and_4_descriptors_returns_correct_depth_of_index)
 {
   // arrange
-  auto dataset_size = 4;
-  unsigned L = 2;
   distance::set_distance_function(distance::Metric::EUCLIDEAN_OPT_UNROLL);
   globals::g_vector_dimensions = 3;
 
   // act
   std::vector<std::vector<float>> dataset{
-      {1, 2, 3},
-      {4, 5, 6},
-      {7, 8, 9},
-      {10, 11, 12},
+      {1, 2, 3}, {4, 5, 6}, {7, 8, 9}, {10, 11, 12}, {10, 11, 12}, {10, 11, 12},
   };
 
-  auto leader_indexes = pre_processing_helpers::generate_leaders_indexes(dataset_size, L);
-  auto first_level = pre_processing::create_index(dataset, L);
-
-  auto root = Node{Point{{3,3,3}, 100}};  // FIXME: Remove this when the index uses a single Node as root node
-  root.children.swap(first_level->root.children);
-
-  auto result = testhelpers::measure_depth_from(root);
+  unsigned sc = 2;
+  unsigned sn = 2;
+  auto index = pre_processing::create_index(dataset, sc, sn);
+  auto result = testhelpers::measure_depth_from(index->root);
 
   // assert
   ASSERT_EQ(result, 2);
@@ -45,8 +38,11 @@ TEST(pre_processing_tests,
   // arrange
   auto dataset_size = 4;
   unsigned L = 2;
+  unsigned sc = 2;
+  unsigned sn = 2;
   distance::set_distance_function(distance::Metric::EUCLIDEAN_OPT_UNROLL);
   globals::g_vector_dimensions = 3;
+  unsigned l = 3;
 
   std::vector<std::vector<float>> dataset{
       {1, 2, 3},
@@ -56,10 +52,12 @@ TEST(pre_processing_tests,
   };
 
   // act
-  auto leader_indexes = pre_processing_helpers::generate_leaders_indexes(dataset_size, L);
-  auto first_level = pre_processing::create_index(dataset, L);
+  auto leader_indexes = pre_processing_helpers::generate_leaders_indexes(dataset_size, l, L);
 
-  auto root = Node{Point{{3,3,3}, 100}};  // FIXME: Remove this when the index uses a single Node as root node
+  auto first_level = pre_processing::create_index(dataset, sc, sn);
+
+  auto root =
+      Node{Point{{3, 3, 3}, 100}};  // FIXME: Remove this when the index uses a single Node as root node
   root.children.swap(first_level->root.children);
 
   auto result = testhelpers::count_points_in_clusters(root);
@@ -154,13 +152,13 @@ TEST(pre_processing_helpers_tests,
      generate_leaders_indexes_given_dataset_12_L_3_returns_correct_number_for_each_level)
 {
   auto dataset_size = 12;
-  auto L = 3;
+  auto l = 4;
+  auto L = 2;
 
-  auto leader_indexes = pre_processing_helpers::generate_leaders_indexes(dataset_size, L);
+  auto leader_indexes = pre_processing_helpers::generate_leaders_indexes(dataset_size, l, L);
 
-  ASSERT_EQ(leader_indexes[0].size(), 2);  // 1st level
+  ASSERT_EQ(leader_indexes[0].size(), 3);  // 1st level
   ASSERT_EQ(leader_indexes[1].size(), 4);  // 2nd level
-  ASSERT_EQ(leader_indexes[2].size(), 7);  // 3rd level
 }
 
 TEST(pre_processing_helpers_tests, get_closest_node_returns_closest_cluster)

@@ -49,4 +49,7 @@ Point* Node::get_leader() { return &points[0]; }
 /*
  * Index data type
  */
-Index::Index(unsigned L_, Node root_node) : L(L_), root(std::move(root_node)) {}
+Index::Index(unsigned L_, unsigned sc_, unsigned sn_, Node root_node)
+    : L(L_), sc(sc_), sn(sn_), root(std::move(root_node))
+{
+}

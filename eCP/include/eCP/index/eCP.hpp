@@ -5,27 +5,30 @@
 #include <vector>
 
 /**
- * @file eCP.cpp
+ * @file eCP.hpp
  * Library for the extended cluster pruning algorithm.
  *
  * @author Nikolaj Mertz
  * @author Frederik Martini
  * @author Morten Skøtt
- * @date 09/03/2021
+ * @date 06/04/21
  */
 namespace eCP {
 
 /**
- * create an L level index from a data set
+ * @brief eCP_Index will create an index from a data set with a given internal node size Sn and cluster size
+ * Sc.
  * @param descriptors is a vector of feature descriptors that the index should be built from.
- * @param L is the number of levels in the index. L = cluster level.
- * @param metric is the used distance function for the metric space. 0 = euclidean, 1 = angular
- * @return a pointer to the created index
+ * @param sc_cluster_size is the desired cluster size used to calculate number of clusters.
+ * @param sn_node_size is the desired internal node size used to calculate levels L of index.
+ * @param metric is the used distance function for the metric space. 0 = euclidean, 1 = angular.
+ * @return a pointer to the created index.
  */
-Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned int L, unsigned int metric);
+Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned sc_cluster_size,
+                 unsigned sn_node_size, unsigned metric);
 
 /**
- * ANN search in index
+ * @brief query queries in the index structure and returns the k nearest points.
  * @param index is the index structure used to make queries on.
  * @param query is the query point we are looking for k-nn for.
  * @param k is the number of k-nn to return.

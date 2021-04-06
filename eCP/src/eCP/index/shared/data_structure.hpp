@@ -83,8 +83,10 @@ struct Node {
  */
 struct Index {
   unsigned L;
+  unsigned sc;
+  unsigned sn;
   Node root;
-  Index(unsigned L_, Node root_node);
+  Index(unsigned L, unsigned sc_, unsigned sn_, Node root_node);
 };
 
 #endif  // DATA_STRUCTURE_H
