@@ -1,10 +1,8 @@
 #! /usr/bin/env bash
 
-# Script to install and build eCP docker image with ann-benchmarks. It is assumed that 
-# the 'ann-benchmarks' and the 'eCP' repositories are located in the same 
+# Script to install and build eCP such that it can be run locally from ann-benchmarks dir. 
+# It is assumed that the 'ann-benchmarks' and the 'eCP' repositories are located in the same 
 # dir './' and that this script is called from './eCP/scripts.
-# It is also assumed that python 3.6 is used eg. using venv and that the remote contains the
-# code as the ecp docker image will pull it down inside ann-benchmarks.
 
 # Attention: It is necessary to set REPO_DIR_NAME variable to the name you have
 # given the eCP repository.
@@ -12,30 +10,43 @@
 # Example:
 # ./ 
 #   ann-benchmarks/
-#   eCp/
+#   eCP/
 #     scripts/
 
 REPO_DIR_NAME="eCP"
+NAME="ecp_install"
 
-echo "Will install eCP docker image into ann-benchmarks..."
-read -p "Press enter to continue"
+echo "${NAME}: Will generate wrapper, copy relevant ann-benchmarks files + generated wrapper."
+read -p "${NAME}: Press enter to continue"
+
+echo "${NAME}: Generating wrapper"
+./gen_wrapper.sh
 
 cd ../..
 
 [ ! -d ann-benchmarks ] \
-    && echo "Cloning new ann-benchmarks repo" \
+    && echo "${NAME}: Cloning new ann-benchmarks repo" \
     && git clone https://github.com/erikbern/ann-benchmarks
 
-echo "Copy eCP necessary files"
-cp -r ${REPO_DIR_NAME}/ann-benchmarks/* ann-benchmarks/
+echo "${NAME}: Copy eCP necessary files"
+yes | cp -r ${REPO_DIR_NAME}/benchmarks-files/eCP.py					ann-benchmarks/ann_benchmarks/algorithms/eCP.py
+yes | cp -r ${REPO_DIR_NAME}/benchmarks-files/Dockerfile.ecp ann-benchmarks/install/Dockerfile.ecp
+yes | cp -r ${REPO_DIR_NAME}/benchmarks-files/algos.yaml			ann-benchmarks/algos.yaml
 
-echo "Setup python 3.6 env inside ann-benchmarks"
+
+echo "${NAME}: Copying generated files"
+yes | cp -r ${REPO_DIR_NAME}/eCP/build/swig/_eCP_wrapper.so ann-benchmarks/
+yes | cp -r ${REPO_DIR_NAME}/eCP/build/swig/eCP_wrapper.py ann-benchmarks/
+
+echo "${NAME}: Setup python 3.6 env inside ann-benchmarks"
 cd ann-benchmarks
 python3.6 -m venv env
 source env/bin/activate
 
-echo "Install dependencies"
+echo "${NAME}: Install dependencies"
 pip install -r requirements.txt
 
-echo "Building ONLY eCP docker image"
-python install.py --algorithm ecp
+#echo "Building ONLY eCP docker image"
+#python install.py --algorithm ecp
+
+echo "${NAME}: Done."
