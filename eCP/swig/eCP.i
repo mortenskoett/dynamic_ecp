@@ -1,3 +1,4 @@
+// clang-format off
 %module eCP_wrapper
 %{
 #include "../include/eCP/index/eCP.hpp"
@@ -16,6 +17,8 @@ namespace std {
 }
 
 namespace eCP {
-  Index* eCP::eCP_Index(const std::vector<std::vector<float>> &descriptors, unsigned int L, unsigned int metric);
-  std::pair<std::vector<unsigned int>, std::vector<float>> eCP::query(Index* index, std::vector<float> query, unsigned int k, unsigned int b);
+  Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned sc_cluster_size, unsigned sn_node_size, unsigned int metric);
+  std::pair<std::vector<unsigned int>, std::vector<float>> query(Index* index, std::vector<float> query, unsigned int k, unsigned int b);
 }
+
+// clang-format on
