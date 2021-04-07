@@ -7,6 +7,20 @@
 #include <eCP/utilities/utilities.hpp>
 #include <iostream>
 
+// FIXME: WIP WORK NVM THIS -- TEMP
+// Code relating to hi/lo
+//    const auto lo = 0.3;    // make size of sc smaller to get more clusters
+//    i.e. have more and less filled clusters initially const auto hi = 0.3; //
+//    enlarge size of sn with percentage to circumvent potentially over-filled
+//    nodes from triggering a reclustering immediately auto sn_hi =
+//    std::ceil(sn_optimal * (1 + hi)); auto sc_lo = std::ceil(sc_optimal * (1 -
+//    lo)); auto sn_recalc = std::ceil(std::pow(l, 1.0/L) * (1 + hi));
+
+// Code relating to reclustering policy
+//  enum ReclusteringPolicy {AVERAGE = 1, ABSOLUTE };
+//  const auto cluster_policy = ReclusteringPolicy::AVERAGE;
+//  const auto leader_policy = ReclusteringPolicy::ABSOLUTE;
+
 /*
  * Namespace containing testable helpers used to build the index. Compilation unit only.
  */
