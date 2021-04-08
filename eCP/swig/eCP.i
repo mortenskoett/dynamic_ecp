@@ -26,7 +26,7 @@ namespace std {
 %newobject eCP::eCP_Index;
 
 namespace eCP {
-  Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned sc_cluster_size, unsigned sn_node_size, unsigned int metric);
+  Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned cluster_size, unsigned int metric);
   std::pair<std::vector<unsigned int>, std::vector<float>> query(Index* index, std::vector<float> query, unsigned int k, unsigned int b);
 }
 

@@ -6,19 +6,17 @@
 #include <eCP/index/shared/globals.hpp>
 
 /* Helpers */
-Index *get_index(int descriptors_amount = 10)
+Index* get_index(int descriptors_amount = 10)
 {
   unsigned sc = 1000;
-  unsigned sn = 100;
 
   std::vector<std::vector<float>> descriptors;
 
-  for (int i = 0; i < descriptors_amount + 1; i++)
-  {
+  for (int i = 0; i < descriptors_amount + 1; i++) {
     descriptors.push_back({(float)i, (float)i, (float)i});
   }
 
-  Index *index = eCP::eCP_Index(descriptors, sc, sn, 0);
+  Index* index = eCP::eCP_Index(descriptors, sc, 0);
   return index;
 }
 

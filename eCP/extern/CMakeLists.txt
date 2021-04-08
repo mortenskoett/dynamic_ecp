@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.18)
-
 include(FetchContent)
 
 # Make googletests part of Makefiles in build dir

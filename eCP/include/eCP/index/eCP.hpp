@@ -19,13 +19,12 @@ namespace eCP {
  * @brief eCP_Index will create an index from a data set with a given internal node size Sn and cluster size
  * Sc.
  * @param descriptors is a vector of feature descriptors that the index should be built from.
- * @param sc_cluster_size is the desired cluster size used to calculate number of clusters.
- * @param sn_node_size is the desired internal node size used to calculate levels L of index.
+ * @param cluster_size defines the size of a cluster and is used to calculate the total number of clusters. It
+ * is also used as internal node size when the depth L of the index is calculated.
  * @param metric is the used distance function for the metric space. 0 = euclidean, 1 = angular.
  * @return a pointer to the created index.
  */
-Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned sc_cluster_size,
-                 unsigned sn_node_size, unsigned metric);
+Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned cluster_size, unsigned metric);
 
 /**
  * @brief query queries in the index structure and returns the k nearest points.

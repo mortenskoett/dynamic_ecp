@@ -4,6 +4,7 @@
 #include <eCP/index/query-processing.hpp>
 #include <eCP/index/shared/distance.hpp>
 #include <eCP/index/shared/globals.hpp>
+#include <eCP/index/shared/traversal.hpp>
 #include <eCP/utilities/utilities.hpp>
 #include <iostream>
 
@@ -13,18 +14,18 @@
 namespace pre_processing_helpers {
 
 /**
- * @brief generate_leaders_indexes generates a set of random indexes used to
- * pick leaders from each level. Since each level will use Nodes from the level
- * below it, the return vector is generated bottom-up. E.g. the indexes for level
- * L-1 is based on the size of level L.
+ * @brief generate_leaders_indexes
  * @param dataset_size is the number of feature vectors in the the input
  * dataset.
  * @param l is the pre-calculated number of clusters in the index at level L.
+ * @param sn is the internal node size.
  * @param L is the total number of levels in the index.
  * @return a vector of L vectors containing randomly picked unsigned ints from
  * index level 1 to level L.
+ * @return
  */
-std::vector<std::vector<unsigned>> generate_leaders_indexes(std::size_t dataset_size, unsigned l, unsigned L)
+std::vector<std::vector<unsigned>> generate_leaders_indexes(std::size_t dataset_size, unsigned l, unsigned sn,
+                                                            unsigned L)
 {
   std::vector<std::vector<unsigned>> random_leader_indexes(L);
 
@@ -34,11 +35,9 @@ std::vector<std::vector<unsigned>> generate_leaders_indexes(std::size_t dataset_
   // Generate levels above L, starting with L-1, ending with leader_indexes[0] is level 1.
   unsigned previous_container_size = l;
   for (unsigned i = L - 1; i > 0; --i) {
-    // Calculate current level size
-    unsigned level_size = ceil(pow(dataset_size, (i / (L + 1.00))));
+    unsigned level_size = ceil(pow(sn, i));  // Levels are based on input argument sn
 
     // Pick random leaders for current level based on size of level below
-    // FIXME: Time this to see if RVO or move/copy ctors are being utilized
     random_leader_indexes[i - 1] = utilities::get_random_unique_indexes(level_size, previous_container_size);
     previous_container_size = level_size;
   }
@@ -47,45 +46,54 @@ std::vector<std::vector<unsigned>> generate_leaders_indexes(std::size_t dataset_
 }
 
 /**
- * @brief get_closest_node compares each node in nodes to query and returns a
- * pointer to the closest one. It is assumed that the vector of nodes is not
- * empty.
- * @param nodes is a vector nodes.
- * @param query is the query feacture vector.
- * @return a pointer to the closest node.
+ * @brief The IndexInitParams struct is used to pass around the initial calculated index parameters.
  */
-Node* get_closest_node(std::vector<Node>& nodes, const float* query)
-{
-  float max = globals::FLOAT_MAX;
-  Node* closest = nullptr;
-
-  for (Node& node : nodes) {
-    const float distance = distance::g_distance_function(query, node.get_leader()->descriptor, max);
-
-    if (distance < max) {
-      max = distance;
-      closest = &node;
-    }
-  }
-  return closest;
-}
+struct IndexInitParams {
+  unsigned l;         // Amount of clusters.
+  unsigned L;         // Depth of index.
+  const unsigned sc;  // Size of a cluster.
+  const unsigned sn;  // Size of an internal node.
+  const float lo;     // Percentage increasing amount of clusters by decreasing size of a cluster.
+  const float hi;     // Percentage decreasing the likelihood of a recluster.
+};
 
 /**
- * @brief find_nearest_leaf traverses the index recursively to find the leaf
- * closest to the given query vector.
- * @param query is the query vector looking for a closest cluster.
- * @param nodes is the children vector of any internal node in the index.
- * @return the nearest leaf (Node) to the given query point.
+ * @brief calculate_initial_index_params calculates the needed values when the index is initialized.
+ * These values are calculated according to the eCP paper as well as the SISAP dynamic eCP paper.
+ * Might throw exception on invalid input.
+ * @param dataset_size is the size of the input dataset.
+ * @param sc is the desired cluster size.
+ * @returns the IndexInitParam struct which contains the needed values.
  */
-Node* find_nearest_leaf(const float* query, std::vector<Node>& nodes)
+IndexInitParams calculate_initial_index_params(unsigned dataset_size, unsigned sc)
 {
-  Node* closest_cluster = get_closest_node(nodes, query);
-
-  if (!closest_cluster->children.empty()) {
-    return find_nearest_leaf(query, closest_cluster->children);
+  if (dataset_size <= sc) {
+    throw std::invalid_argument(
+        "pre_processing: Size of input dataset (n) must be larger than input cluster size (Sc).");
   }
 
-  return closest_cluster;
+  const float lo = 0.3;  // Make sc smaller to get more clusters i.e. have more and less filled clusters.
+  const float hi = 0.3;  // Enlarge sn to circumvent nodes from triggering a reclustering immediately.
+
+  // Using sc for both initial cluster and internal node size.
+  unsigned sc_lo = std::ceil(sc * (1 - lo));
+  unsigned sn_hi = std::ceil(sc * (1 + hi));
+
+  unsigned l = std::ceil(dataset_size / static_cast<float>(sc_lo));  // Total amount clusters.
+  unsigned L = std::ceil(std::log(l) / std::log(sn_hi));             // Initial index depth.
+
+  if (l < 1) {
+    throw std::domain_error("pre_processing: Error: Calculated value of l (number of clusters) is below 1.");
+  }
+
+  if (L < 1) {
+    throw std::domain_error("pre_processing: Error: Calculated value of L (number of levels) is below 1.");
+  }
+
+  // Recalculate internal node size based on l and L.
+  unsigned sn_recalc = std::ceil(std::pow(l, 1.0 / L) * (1 + hi));
+
+  return IndexInitParams{l, L, sc_lo, sn_recalc, lo, hi};
 }
 
 }  // namespace pre_processing_helpers
@@ -94,7 +102,6 @@ namespace pre_processing {
 
 /*
  * This function will create an index by a 3-step process:
- * 0) Calculate l and L from input.
  * 1) Generate random indexes used to pick leaders for each level.
  * 2) Built index bottom-up. Each level is constructed from the level
  * below. Initially the bottom level L is constructed from the input dataset.
@@ -105,37 +112,12 @@ namespace pre_processing {
  * 3) All input vectors are added to the index except those that are
  * already there due to the Node constructor adding the leader to the Points vector.
  */
-Index* create_index(const std::vector<std::vector<float>>& dataset, unsigned sc_optimal, unsigned sn_optimal)
+Index* create_index(const std::vector<std::vector<float>>& dataset, unsigned sc)
 {
-  // ** 0)
-  if (dataset.size() <= sc_optimal) {
-    throw std::invalid_argument(
-        "pre_processing: Size of input dataset (n) must be larger than input cluster size (Sc).");
-  }
-
-  if (sn_optimal <= 1) {
-    throw std::invalid_argument(
-        "pre_processing: Size of input internal node size (Sn) must be larger than 1.");
-  }
-
-  unsigned l = std::ceil(dataset.size() / static_cast<float>(sc_optimal));  // Total amount clusters
-  unsigned L = std::ceil(std::log(l) / std::log(sn_optimal));               // Initial index depth
-
-  if (l < 1) {
-    throw std::domain_error("pre_processing: Error: Calculated value of l (number of clusters) is below 1.");
-  }
-
-  if (L < 1) {
-    throw std::domain_error("pre_processing: Error: Calculated value of L (number of levels) is below 1.");
-  }
-
   // ** 1)
-
-  // Recalculate internal node size based on l and L
-  unsigned average_internal_node_size = std::ceil(std::pow(l, 1.0 / L));
-
-  // FIXME: Assert that RVO is being used
-  const auto random_leader_indexes = pre_processing_helpers::generate_leaders_indexes(dataset.size(), l, L);
+  const auto index_params = pre_processing_helpers::calculate_initial_index_params(dataset.size(), sc);
+  const auto random_leader_indexes = pre_processing_helpers::generate_leaders_indexes(
+      dataset.size(), index_params.l, index_params.sn, index_params.L);
 
   // ** 2)
 
@@ -152,7 +134,7 @@ Index* create_index(const std::vector<std::vector<float>>& dataset, unsigned sc_
       for (auto index : *it) {
         // Pick from input dataset using index as Id of Point
         auto cluster = Node{Point{dataset[index].data(), index}};
-        cluster.points.reserve(sc_optimal);
+        cluster.points.reserve(index_params.sc);
         current_level.emplace_back(std::move(cluster));
       }
     }
@@ -168,7 +150,7 @@ Index* create_index(const std::vector<std::vector<float>>& dataset, unsigned sc_
 
       // Add all nodes from below level as children of current level
       for (auto node : previous_level) {
-        pre_processing_helpers::get_closest_node(current_level, node.get_leader()->descriptor)
+        traversal::get_closest_node(current_level, node.get_leader()->descriptor)
             ->children.emplace_back(std::move(node));
       }
     }
@@ -181,7 +163,7 @@ Index* create_index(const std::vector<std::vector<float>>& dataset, unsigned sc_
   // FIXME: Optional optimization: Use a set to contain id's.
   unsigned id{0};
   for (auto& descriptor : dataset) {
-    auto* leaf = pre_processing_helpers::find_nearest_leaf(descriptor.data(), previous_level);
+    auto* leaf = traversal::find_nearest_leaf(descriptor.data(), previous_level);
     // Only add if id was not added to as leader of the cluster when the index was built
     if (id != leaf->get_leader()->id) {
       leaf->points.emplace_back(Point{descriptor.data(), id});
@@ -195,7 +177,11 @@ Index* create_index(const std::vector<std::vector<float>>& dataset, unsigned sc_
   auto root_node = Node{*root_point};
   root_node.children.swap(previous_level);  // Insert index levels as children of root
 
-  return new Index(L, sc_optimal, average_internal_node_size, root_node);
+  // Defaults are recommended in Anders' thesis pp. ??.
+  auto cluster_policy = pre_processing::ReclusteringPolicy::AVERAGE;  // Reclustering policy for clusters.
+  auto node_policy = pre_processing::ReclusteringPolicy::AVERAGE;     // Reclustering policy for nodes.
+
+  return new Index(index_params.L, dataset.size(), index_params.sc, index_params.sn, root_node);
 }
 
 }  // namespace pre_processing

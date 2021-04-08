@@ -7,11 +7,11 @@ float:
       constructor: eCP
       base-args: ["@metric", false]
       run-groups:
-        eCP:
-          # Sn, Sc
-          args: [[30,50,70,100,150],
-                 [30,50,70,100,150]]
-          query-args: [[1,2,3,4,5,10,15,20]]
+       eCP:
+          # Sc
+          args: [[200, 600, 1200, 1400]]
+          # b
+          query-args: [[2, 5, 10]]
     sptag:
       docker-tag: ann-benchmarks-sptag
       module: ann_benchmarks.algorithms.sptag
