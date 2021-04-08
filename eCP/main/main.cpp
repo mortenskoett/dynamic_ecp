@@ -13,24 +13,22 @@ int main(int argc, char* argv[])
   // int metric = 0;  // Distance metric - 0 = euclidean - 1 = angular - 2 = euclidean with early halting
   // int k = 100;     // number points to return
   // int b = 40;      // number clusters to search
+  // const int qs = 10000;  // queries to make on created index
   // unsigned p = 500'000;       // number of vectors
   // const int d = 128;     // dimensions of vector
   // const int r = 1000;    // upper bound of generated vectors
-  // const int qs = 10000;  // queries to make on created index
   // unsigned sc = 70;  // optimal cluster size
-  // unsigned sn = 70;   // optimal node/leader size
   // bool hdf5 = false;   // generate S and queries
 
   /* For debugging params */
-  int metric = 1;      // Distance metric - 0 = euclidean - 1 = angular - 2 = euclidean early halt
+  int metric = 0;      // Distance metric - 0 = euclidean - 1 = angular - 2 = euclidean early halt
   int k = 2;           // number points to return
   int b = 2;           // number clusters to search
-  unsigned p = 1000;   // number of vectors
-  const int d = 128;   // dimensions of vector
-  const int r = 1000;  // upper bound of generated vectors
   const int qs = 15;   // queries to make on created index
-  unsigned sc = 70;  // optimal cluster size
-  unsigned sn = 70;   // optimal node/leader size
+  unsigned p = 1'100'000;   // number of vectors
+  const int d = 3;   // dimensions of vector
+  const int r = 1000;  // upper bound of generated vectors
+  unsigned sc = 100;  // optimal cluster size
   bool hdf5 = false;   // generate S and queries
 
   // clang-format on
@@ -73,9 +71,6 @@ int main(int argc, char* argv[])
       else if (flag == "-sc") {
         sc = atoi(argv[j]);
       }
-      else if (flag == "-sn") {
-        sn = atoi(argv[j]);
-      }
       else {
         throw std::invalid_argument("Invalid flag: " + flag);
       }
@@ -92,7 +87,7 @@ int main(int argc, char* argv[])
 
   /* Index build instrumentation */
   __itt_task_begin(domain_build, __itt_null, __itt_null, handle_build);
-  Index* index = eCP::eCP_Index(S, sc, sn, metric);
+  Index* index = eCP::eCP_Index(S, sc, metric);
   __itt_task_end(domain_build);
 
   /* Query instrumentation */
@@ -109,7 +104,7 @@ int main(int argc, char* argv[])
 
   /* Clean up */
   delete index;
-  std::cout << "eCP run OK with arguments: Sc = " << sc << ", Sn = " << sn << ", b = " << b << ", k = " << k
+  std::cout << "eCP run OK with arguments: Sc = " << sc << ", b = " << b << ", k = " << k
             << " metric = " << metric << "\n";
   std::cout << "dataset size: " << p << "\n";
   return 0;

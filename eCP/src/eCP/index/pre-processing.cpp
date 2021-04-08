@@ -4,8 +4,23 @@
 #include <eCP/index/query-processing.hpp>
 #include <eCP/index/shared/distance.hpp>
 #include <eCP/index/shared/globals.hpp>
+#include <eCP/index/shared/traversal.hpp>
 #include <eCP/utilities/utilities.hpp>
 #include <iostream>
+
+// FIXME: WIP WORK NVM THIS -- TEMP
+// Code relating to hi/lo
+//    const auto lo = 0.3;    // make size of sc smaller to get more clusters
+//    i.e. have more and less filled clusters initially const auto hi = 0.3; //
+//    enlarge size of sn with percentage to circumvent potentially over-filled
+//    nodes from triggering a reclustering immediately auto sn_hi =
+//    std::ceil(sn_optimal * (1 + hi)); auto sc_lo = std::ceil(sc_optimal * (1 -
+//    lo)); auto sn_recalc = std::ceil(std::pow(l, 1.0/L) * (1 + hi));
+
+// Code relating to reclustering policy
+//  enum ReclusteringPolicy {AVERAGE = 1, ABSOLUTE };
+//  const auto cluster_policy = ReclusteringPolicy::AVERAGE;
+//  const auto leader_policy = ReclusteringPolicy::ABSOLUTE;
 
 /*
  * Namespace containing testable helpers used to build the index. Compilation unit only.
@@ -46,48 +61,6 @@ std::vector<std::vector<unsigned>> generate_leaders_indexes(std::size_t dataset_
   return random_leader_indexes;
 }
 
-/**
- * @brief get_closest_node compares each node in nodes to query and returns a
- * pointer to the closest one. It is assumed that the vector of nodes is not
- * empty.
- * @param nodes is a vector nodes.
- * @param query is the query feacture vector.
- * @return a pointer to the closest node.
- */
-Node* get_closest_node(std::vector<Node>& nodes, const float* query)
-{
-  float max = globals::FLOAT_MAX;
-  Node* closest = nullptr;
-
-  for (Node& node : nodes) {
-    const float distance = distance::g_distance_function(query, node.get_leader()->descriptor, max);
-
-    if (distance < max) {
-      max = distance;
-      closest = &node;
-    }
-  }
-  return closest;
-}
-
-/**
- * @brief find_nearest_leaf traverses the index recursively to find the leaf
- * closest to the given query vector.
- * @param query is the query vector looking for a closest cluster.
- * @param nodes is the children vector of any internal node in the index.
- * @return the nearest leaf (Node) to the given query point.
- */
-Node* find_nearest_leaf(const float* query, std::vector<Node>& nodes)
-{
-  Node* closest_cluster = get_closest_node(nodes, query);
-
-  if (!closest_cluster->children.empty()) {
-    return find_nearest_leaf(query, closest_cluster->children);
-  }
-
-  return closest_cluster;
-}
-
 }  // namespace pre_processing_helpers
 
 namespace pre_processing {
@@ -105,7 +78,7 @@ namespace pre_processing {
  * 3) All input vectors are added to the index except those that are
  * already there due to the Node constructor adding the leader to the Points vector.
  */
-Index* create_index(const std::vector<std::vector<float>>& dataset, unsigned sc_optimal, unsigned sn_optimal)
+Index* create_index(const std::vector<std::vector<float>>& dataset, unsigned sc_optimal)
 {
   // ** 0)
   if (dataset.size() <= sc_optimal) {
@@ -113,13 +86,8 @@ Index* create_index(const std::vector<std::vector<float>>& dataset, unsigned sc_
         "pre_processing: Size of input dataset (n) must be larger than input cluster size (Sc).");
   }
 
-  if (sn_optimal <= 1) {
-    throw std::invalid_argument(
-        "pre_processing: Size of input internal node size (Sn) must be larger than 1.");
-  }
-
   unsigned l = std::ceil(dataset.size() / static_cast<float>(sc_optimal));  // Total amount clusters
-  unsigned L = std::ceil(std::log(l) / std::log(sn_optimal));               // Initial index depth
+  unsigned L = std::ceil(std::log(l) / std::log(sc_optimal));               // Initial index depth
 
   if (l < 1) {
     throw std::domain_error("pre_processing: Error: Calculated value of l (number of clusters) is below 1.");
@@ -168,7 +136,7 @@ Index* create_index(const std::vector<std::vector<float>>& dataset, unsigned sc_
 
       // Add all nodes from below level as children of current level
       for (auto node : previous_level) {
-        pre_processing_helpers::get_closest_node(current_level, node.get_leader()->descriptor)
+        traversal::get_closest_node(current_level, node.get_leader()->descriptor)
             ->children.emplace_back(std::move(node));
       }
     }
@@ -181,7 +149,7 @@ Index* create_index(const std::vector<std::vector<float>>& dataset, unsigned sc_
   // FIXME: Optional optimization: Use a set to contain id's.
   unsigned id{0};
   for (auto& descriptor : dataset) {
-    auto* leaf = pre_processing_helpers::find_nearest_leaf(descriptor.data(), previous_level);
+    auto* leaf = traversal::find_nearest_leaf(descriptor.data(), previous_level);
     // Only add if id was not added to as leader of the cluster when the index was built
     if (id != leaf->get_leader()->id) {
       leaf->points.emplace_back(Point{descriptor.data(), id});
@@ -195,7 +163,7 @@ Index* create_index(const std::vector<std::vector<float>>& dataset, unsigned sc_
   auto root_node = Node{*root_point};
   root_node.children.swap(previous_level);  // Insert index levels as children of root
 
-  return new Index(L, sc_optimal, average_internal_node_size, root_node);
+  return new Index(L, dataset.size(), sc_optimal, average_internal_node_size, root_node);
 }
 
 }  // namespace pre_processing

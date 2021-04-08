@@ -12,7 +12,7 @@
  */
 
 TEST(pre_processing_tests,
-     create_index_given_dataset_and_sc2_sn2_and_4_descriptors_returns_correct_depth_of_index)
+     create_index_given_dataset_and_sc2_and_4_descriptors_returns_correct_depth_of_index)
 {
   // arrange
   distance::set_distance_function(distance::Metric::EUCLIDEAN_OPT_UNROLL);
@@ -24,8 +24,7 @@ TEST(pre_processing_tests,
   };
 
   unsigned sc = 2;
-  unsigned sn = 2;
-  auto index = pre_processing::create_index(dataset, sc, sn);
+  auto index = pre_processing::create_index(dataset, sc);
   auto result = testhelpers::measure_depth_from(index->root);
 
   // assert
@@ -39,7 +38,6 @@ TEST(pre_processing_tests,
   auto dataset_size = 4;
   unsigned L = 2;
   unsigned sc = 2;
-  unsigned sn = 2;
   distance::set_distance_function(distance::Metric::EUCLIDEAN_OPT_UNROLL);
   globals::g_vector_dimensions = 3;
   unsigned l = 3;
@@ -54,7 +52,7 @@ TEST(pre_processing_tests,
   // act
   auto leader_indexes = pre_processing_helpers::generate_leaders_indexes(dataset_size, l, L);
 
-  auto first_level = pre_processing::create_index(dataset, sc, sn);
+  auto first_level = pre_processing::create_index(dataset, sc);
 
   auto root =
       Node{Point{{3, 3, 3}, 100}};  // FIXME: Remove this when the index uses a single Node as root node
@@ -159,72 +157,4 @@ TEST(pre_processing_helpers_tests,
 
   ASSERT_EQ(leader_indexes[0].size(), 3);  // 1st level
   ASSERT_EQ(leader_indexes[1].size(), 4);  // 2nd level
-}
-
-TEST(pre_processing_helpers_tests, get_closest_node_returns_closest_cluster)
-{
-  distance::set_distance_function(distance::Metric::EUCLIDEAN_OPT_UNROLL);
-  globals::g_vector_dimensions = 3;
-
-  std::vector<Node> clusters{
-      Node{Point(new float[3]{1, 1, 1}, 0)},
-      Node{Point(new float[3]{4, 4, 4}, 1)},
-      Node{Point(new float[3]{7, 7, 7}, 2)},
-      Node{Point(new float[3]{8, 8, 8}, 3)},
-  };
-
-  float* query = new float[3]{3, 3, 3};
-
-  float expected[3] = {4, 4, 4};
-  Node* actual = pre_processing_helpers::get_closest_node(clusters, query);
-
-  EXPECT_EQ(*actual->points[0].descriptor, *expected);
-}
-
-TEST(pre_processing_helpers_tests, get_closest_node_given_query_in_clusters_returns_same)
-{
-  distance::set_distance_function(distance::Metric::EUCLIDEAN_OPT_UNROLL);
-  globals::g_vector_dimensions = 3;
-
-  std::vector<Node> clusters = {
-      Node{Point{new float[3]{1, 1, 1}, 0}},
-      Node(Point(new float[3]{4, 4, 4}, 1)),
-      Node(Point(new float[3]{7, 7, 7}, 2)),
-      Node(Point(new float[3]{8, 8, 8}, 3)),
-  };
-
-  float* query = new float[3]{8, 8, 8};
-
-  float expected[3] = {8, 8, 8};
-  Node* actual = pre_processing_helpers::get_closest_node(clusters, query);
-
-  EXPECT_EQ(*actual->points[0].descriptor, *expected);
-}
-
-TEST(pre_processing_helpers_tests, find_nearest_leaf_finds_nearest_cluster_in_2_level_index)
-{
-  distance::set_distance_function(distance::Metric::EUCLIDEAN_OPT_UNROLL);
-  globals::g_vector_dimensions = 3;
-
-  std::vector<Node> clusters = {
-      Node{Point{new float[3]{10, 10, 10}, 10}},
-      Node(Point(new float[3]{100, 100, 100}, 100)),
-      Node(Point(new float[3]{1000, 1000, 1000}, 1000)),
-      Node(Point(new float[3]{10'000, 10'000, 10'000}, 10'000)),
-  };
-
-  Point p1{Point{new float[3]{2, 2, 2}, 2}};
-  Point p2{Point{new float[3]{900, 900, 900}, 900}};
-  Node node1{p1};
-  Node node2{p2};
-
-  node2.children = clusters;
-  std::vector<Node> l1 = {node1, node2};
-
-  float* query = new float[3]{999, 999, 999};
-  float* expected = clusters[2].points[0].descriptor;
-
-  Node* actual = pre_processing_helpers::find_nearest_leaf(query, l1);
-
-  EXPECT_EQ(*actual->points[0].descriptor, *expected);
 }

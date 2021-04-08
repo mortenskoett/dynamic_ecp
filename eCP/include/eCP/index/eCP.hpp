@@ -25,7 +25,7 @@ namespace eCP {
  * @return a pointer to the created index.
  */
 Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned sc_cluster_size,
-                 unsigned sn_node_size, unsigned metric);
+                 unsigned metric);
 
 /**
  * @brief query queries in the index structure and returns the k nearest points.

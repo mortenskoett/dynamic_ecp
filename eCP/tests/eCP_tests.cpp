@@ -10,14 +10,13 @@
 Index* get_index()
 {
   unsigned sc = 10;
-  unsigned sn = 10;
   std::vector<std::vector<float>> descriptors = {
       {59, 59, 59}, {50, 50, 50}, {2, 2, 2},    {6, 6, 6},    {15, 15, 15}, {11, 11, 11},
       {31, 31, 31}, {21, 21, 21}, {42, 42, 24}, {24, 24, 24}, {10, 10, 10}, {34, 34, 34},
       {25, 25, 25}, {29, 29, 29}, {32, 32, 32}, {40, 40, 40}, {7, 7, 7},
   };
 
-  return eCP::eCP_Index(descriptors, sc, sn, 0);
+  return eCP::eCP_Index(descriptors, sc, 0);
 }
 
 /* Tests */

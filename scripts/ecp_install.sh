@@ -29,14 +29,14 @@ cd ../..
     && git clone https://github.com/erikbern/ann-benchmarks
 
 echo "${NAME}: Copy eCP necessary files"
-yes | cp -r ${REPO_DIR_NAME}/benchmarks-files/eCP.py					ann-benchmarks/ann_benchmarks/algorithms/eCP.py
-yes | cp -r ${REPO_DIR_NAME}/benchmarks-files/Dockerfile.ecp ann-benchmarks/install/Dockerfile.ecp
-yes | cp -r ${REPO_DIR_NAME}/benchmarks-files/algos.yaml			ann-benchmarks/algos.yaml
+yes | cp -rv ${REPO_DIR_NAME}/benchmarks-files/eCP.py					ann-benchmarks/ann_benchmarks/algorithms/eCP.py
+yes | cp -rv ${REPO_DIR_NAME}/benchmarks-files/Dockerfile.ecp ann-benchmarks/install/Dockerfile.ecp
+yes | cp -rv ${REPO_DIR_NAME}/benchmarks-files/algos.yaml			ann-benchmarks/algos.yaml
 
 
 echo "${NAME}: Copying generated files"
-yes | cp -r ${REPO_DIR_NAME}/eCP/build/swig/_eCP_wrapper.so ann-benchmarks/
-yes | cp -r ${REPO_DIR_NAME}/eCP/build/swig/eCP_wrapper.py ann-benchmarks/
+yes | cp -rv ${REPO_DIR_NAME}/eCP/build/swig/_eCP_wrapper.so ann-benchmarks/
+yes | cp -rv ${REPO_DIR_NAME}/eCP/build/swig/eCP_wrapper.py ann-benchmarks/
 
 echo "${NAME}: Setup python 3.6 env inside ann-benchmarks"
 cd ann-benchmarks

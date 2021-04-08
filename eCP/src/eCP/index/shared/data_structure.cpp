@@ -52,6 +52,8 @@ void swap(Point& fst, Point& snd)
 /*
  * Node data type
  */
+Node::Node() {}
+
 Node::Node(Point p)
     : points{std::move(p)}
 {
@@ -62,10 +64,31 @@ Point* Node::get_leader() { return &points[0]; }
 /*
  * Index data type
  */
-Index::Index(unsigned L_, unsigned sc_, unsigned sn_, Node root_node)
+Index::Index()
+    : L(0)
+    , sc(0)
+    , sn(0)
+    , size(0)
+    , root(Node{})
+{
+}
+
+// Used to construct the index incrementally.
+Index::Index(unsigned sc_, unsigned sn_)
+    : L(1)
+    , sc(sc_)
+    , sn(sn_)
+    , size(0)
+    , root(Node{})
+{
+}
+
+// Used to batch construct the index.
+Index::Index(unsigned L_, unsigned index_size, unsigned sc_, unsigned sn_, Node root_node)
     : L(L_)
     , sc(sc_)
     , sn(sn_)
-    , root(std::move(root_node))
+    , size(index_size)
+    , root(root_node)
 {
 }

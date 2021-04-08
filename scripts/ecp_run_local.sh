@@ -4,11 +4,14 @@
 # for absolute convenience. Uncomment dataset to be run.
 
 NAME="ecp_run_local"
-# DATASET="../eCP/datasets/random-xs-20-euclidean"
-DATASET="glove-25-angular"
+DATASET="random-xs-20-euclidean"
+# DATASET="glove-25-angular"
 
 echo "${NAME}: Will run benchmarks on eCP. First run 'ecp_install.sh'. Dataset: $DATASET."
 read -p "${NAME}: Press enter to continue"
+
+echo "${NAME}: Copy datasets"
+yes | cp -rv ../datasets/${DATASET}.hdf5 ../../ann-benchmarks/data/${DATASET}.hdf5
 
 # Go to ann-benchmarks dir
 cd ../../ann-benchmarks
@@ -24,7 +27,7 @@ echo "${NAME}: Creating plots and website"
 python plot.py --dataset ${DATASET}
 
 mkdir -p website
-python create_website.py --outputdir website
+python create_website.py --outputdir website --scatter
 
 # echo "Cleaning up tests"
 

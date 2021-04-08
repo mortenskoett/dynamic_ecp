@@ -66,6 +66,7 @@ struct Point {
 struct Node {
   std::vector<Node> children;
   std::vector<Point> points;
+  explicit Node();
   explicit Node(Point p);
 
   /**
@@ -82,11 +83,14 @@ struct Node {
  * @param dataset dataset of points the index was built from
  */
 struct Index {
-  unsigned L;
-  unsigned sc;
-  unsigned sn;
+  unsigned L;     // Current depth
+  unsigned sc;    // Cluster size
+  unsigned sn;    // Internal node size
+  unsigned size;  // Number of feature descriptors contained in index.
   Node root;
-  Index(unsigned L, unsigned sc_, unsigned sn_, Node root_node);
+  explicit Index();
+  explicit Index(unsigned sc_, unsigned sn_);
+  explicit Index(unsigned L, unsigned index_size, unsigned sc_, unsigned sn_, Node root_node);
 };
 
 #endif  // DATA_STRUCTURE_H
