@@ -66,6 +66,7 @@ struct Point {
 struct Node {
   std::vector<Node> children;
   std::vector<Point> points;
+  explicit Node();
   explicit Node(Point p);
 
   /**
@@ -76,15 +77,40 @@ struct Node {
 };
 
 /**
- * Represent the index of nodes built from the data set
- * @param L depth of the index
- * @param top_level top level of the index
- * @param dataset dataset of points the index was built from
+ * @brief The ReclusteringPolicy enum defines when a reclustering should happen.
+ * If AVERAGE then a reclustering is initiated when the average size of a nodes children grows above a
+ * threshold.
+ * If ABSOLUTE then a reclustering is initiated whenever the number of children for any child node grows
+ * beyond some threshold.
+ */
+enum ReclusteringPolicy { AVERAGE = 1, ABSOLUTE };
+
+/**
+ * @brief Index is the definition of a constructed or partially constructed index. The struct is used to hold
+ * the neededed data to be able to operate on the Index.
+ * @param L is the depth of the index.
+ * @param index_size is the total number of descriptors contained in the index.
+ * @param sc_ is the cluster size.
+ * @param sn_ is the internal node size.
+ * @param cluster_policy_ is the policy used to decide when to initiate a reclustering of clusters.
+ * @param node_policy_ is the policy used to decide when to initiate a reclustering of internal nodes.
+ * @param root_node is the root node of the index. The children of this node are considered the first level of
+ * the index L=1.
  */
 struct Index {
-  unsigned L;
+  unsigned L;                         // Current depth
+  unsigned sc;                        // Cluster size
+  unsigned sn;                        // Internal node size
+  unsigned size;                      // Number of feature descriptors contained in index.
+  ReclusteringPolicy cluster_policy;  // Reclustering policy for clusters.
+  ReclusteringPolicy node_policy;     // Reclustering policy for internal nodes.
   Node root;
-  Index(unsigned L_, Node root_node);
+
+  explicit Index();
+  explicit Index(unsigned sc_, unsigned sn_, ReclusteringPolicy cluster_policy_,
+                 ReclusteringPolicy node_policy_);
+  explicit Index(unsigned L, unsigned index_size, unsigned sc_, unsigned sn_,
+                 ReclusteringPolicy cluster_policy_, ReclusteringPolicy node_policy_, Node root_node);
 };
 
 #endif  // DATA_STRUCTURE_H
