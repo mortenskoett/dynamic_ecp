@@ -1,4 +1,5 @@
 # See Clang 12 doc: https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+# Turn on/off in code by: '// clang-format on' or '// clang-format off'.
 
 BasedOnStyle: Google
 
@@ -12,6 +13,8 @@ ColumnLimit: 110
 IndentWidth: 2
 
 BreakBeforeBraces: Stroustrup
+BreakConstructorInitializers: BeforeComma
+ConstructorInitializerAllOnOneLineOrOnePerLine: false
 
 NamespaceIndentation: None
 AlignEscapedNewlines: true
