@@ -4,10 +4,13 @@ import numpy as np
 from ann_benchmarks.algorithms.base import BaseANN
 
 class eCP(BaseANN):
-    def __init__(self, metric, early_halt, L):
-        self.L = L
+    def __init__(self, metric, early_halt, Sc):
+      # base args
         self.early_halt = early_halt
         self.name = "eCP"
+
+      # benchmark args
+        self.Sc = Sc
         
         if(metric == 'angular'):
             self.metric = 1
@@ -21,7 +24,7 @@ class eCP(BaseANN):
         #dataset contains float32, we need to convert it to float64 for the eCP algorithm
         descriptors = dataset.astype(np.float64)
 
-        self.index = e.eCP_Index(descriptors, self.L, self.metric)
+        self.index = e.eCP_Index(descriptors, self.Sc, self.metric)
 
     def query(self, q, k):
         #query point is float32, convert it to float64
@@ -35,4 +38,4 @@ class eCP(BaseANN):
         self.b = b
 
     def __str__(self):
-        return 'eCP(L=%s, b=%s, early_halt=%s)' % (self.L, self.b, self.early_halt)
+        return 'eCP(Sc=%s, b=%s, early_halt=%s)' % (self.Sc, self.b, self.early_halt)
