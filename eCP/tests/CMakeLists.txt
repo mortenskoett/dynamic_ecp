@@ -8,6 +8,7 @@ add_executable(eCP_tests
     query-processing_tests.cpp
     eCP_tests.cpp
     utilities_tests.cpp
+    traversal_tests.cpp
 
   # helpers
     helpers/testhelpers_tests.cpp
