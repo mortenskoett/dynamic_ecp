@@ -85,13 +85,35 @@ struct Node {
  */
 enum ReclusteringPolicy { AVERAGE = 1, ABSOLUTE };
 
+// FIXME: WIP on a better architecture for policies
+// struct Policy {
+//  unsigned threshold;  // Sn/Sc
+//  unsigned max_size;   // Max size for any single node or cluster.
+//  virtual bool is_reclustering_necessary(Node* const current) = 0;
+//};
+
+// struct AverageClusterPolicy : public Policy {
+// public:
+//  virtual bool is_reclustering_necessary(Node* const current) override;
+//};
+
+// struct AbsoluteClusterPolicy : public Policy {
+// public:
+//  virtual bool is_reclustering_necessary(Node* const current) override;
+//};
+
+//// struct InternalNodePolicy : public Policy {
+////};
+
+// AbsoluteClusterPolicy a = AbsoluteClusterPolicy{};
+// Policy& b = a;
+
 /**
  * @brief Index is the definition of a constructed or partially constructed index. The struct is used to hold
  * the neededed data to be able to operate on the Index.
  * @param L is the depth of the index.
  * @param index_size is the total number of descriptors contained in the index.
- * @param sc_ is the cluster size.
- * @param sn_ is the internal node size.
+ * @param sc_ is the cluster size, often used also as internal node size sn.
  * @param cluster_policy_ is the policy used to decide when to initiate a reclustering of clusters.
  * @param node_policy_ is the policy used to decide when to initiate a reclustering of internal nodes.
  * @param root_node is the root node of the index. The children of this node are considered the first level of
@@ -106,9 +128,9 @@ struct Index {
   ReclusteringPolicy node_policy;     // Reclustering policy for internal nodes.
   Node root;
 
-  explicit Index();
-  explicit Index(unsigned sc_, unsigned sn_, ReclusteringPolicy cluster_policy_,
-                 ReclusteringPolicy node_policy_);
+  explicit Index();  // Possibly required by SWIG.
+  explicit Index(unsigned sc_, ReclusteringPolicy cluster_policy_, ReclusteringPolicy node_policy_,
+                 Node root_node);
   explicit Index(unsigned L, unsigned index_size, unsigned sc_, unsigned sn_,
                  ReclusteringPolicy cluster_policy_, ReclusteringPolicy node_policy_, Node root_node);
 };

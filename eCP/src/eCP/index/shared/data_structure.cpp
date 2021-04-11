@@ -74,15 +74,17 @@ Index::Index()
 }
 
 // Used to construct the index incrementally.
-Index::Index(unsigned sc_, unsigned sn_, ReclusteringPolicy cluster_policy_, ReclusteringPolicy node_policy_)
+Index::Index(unsigned sc_, ReclusteringPolicy cluster_policy_, ReclusteringPolicy node_policy_,
+             Node root_node)
     : L(1)
     , sc(sc_)
-    , sn(sn_)
-    , size(0)
+    , sn(sc_)
+    , size(1)
     , cluster_policy(cluster_policy_)
     , node_policy(node_policy_)
-    , root(Node{})
+    , root(root_node)
 {
+  root.children.reserve(sn);
 }
 
 // Used to batch construct the index.
@@ -97,3 +99,27 @@ Index::Index(unsigned L_, unsigned index_size, unsigned sc_, unsigned sn_, Reclu
     , root(root_node)
 {
 }
+
+// WIP
+// bool AbsoluteClusterPolicy::is_reclustering_necessary(Node* const cluster)
+//{
+//  return (cluster->points.size() > threshold);
+//}
+
+// bool AverageClusterPolicy::is_reclustering_necessary(Node* const parent)
+//{
+//      DescendantData descriptor_data = {count_descriptors(parent)};
+//      auto all_parent_descriptors{descriptor_data.amount};
+//      auto max_points_in_single_cluster{descriptor_data.max_value};
+
+//      float average_number_per_cluster =
+//          all_parent_descriptors / static_cast<float>(parent->children.size());  // Cast for float arithm.
+
+//      if (average_number_per_cluster > threshold) {
+//        return true;
+//      }
+
+//      if (max_points_in_single_cluster > max_size) {
+//        return true;
+//      }
+//}

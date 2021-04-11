@@ -29,7 +29,7 @@ TEST(pre_processing_tests,
   auto result = testhelpers::measure_depth_from(index->root);
 
   // assert
-  ASSERT_EQ(result, 2);
+  EXPECT_EQ(result, 2);
 }
 
 TEST(pre_processing_tests,
@@ -62,7 +62,7 @@ TEST(pre_processing_tests,
   auto result = testhelpers::count_points_in_clusters(root);
 
   // assert
-  ASSERT_EQ(result, 4);
+  EXPECT_EQ(result, 4);
 }
 
 // FIXME: All of these tests need to be re-implemented
@@ -157,8 +157,8 @@ TEST(pre_processing_helpers_tests,
 
   auto leader_indexes = pre_processing_helpers::generate_leaders_indexes(dataset_size, l, sn, L);
 
-  ASSERT_EQ(leader_indexes[0].size(), 4);  // 1st level
-  ASSERT_EQ(leader_indexes[1].size(), 6);  // 2nd level
+  EXPECT_EQ(leader_indexes[0].size(), 4);  // 1st level
+  EXPECT_EQ(leader_indexes[1].size(), 6);  // 2nd level
 }
 
 TEST(pre_processing_helpers_tests,
@@ -175,11 +175,11 @@ TEST(pre_processing_helpers_tests,
   auto lo = res.lo;  // 0.3
   auto hi = res.hi;  // 0.3
 
-  // The assert values were found using excel calculations based on input.
-  ASSERT_EQ(l, 15);
-  ASSERT_EQ(L, 2);
-  ASSERT_EQ(sc_res, 7);
-  ASSERT_EQ(sn_res, 6);  // initially sn == sc but sn is recalculated in FUT
-  ASSERT_NEAR(lo, 0.3, 0.0001);
-  ASSERT_NEAR(hi, 0.3, 0.0001);
+  // The values were found using excel calculations based on input.
+  EXPECT_EQ(l, 15);
+  EXPECT_EQ(L, 2);
+  EXPECT_EQ(sc_res, 7);
+  EXPECT_EQ(sn_res, 6);  // initially sn == sc but sn is recalculated in FUT
+  EXPECT_NEAR(lo, 0.3, 0.0001);
+  EXPECT_NEAR(hi, 0.3, 0.0001);
 }
