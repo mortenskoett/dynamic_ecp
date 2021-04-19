@@ -10,9 +10,8 @@
 namespace traversal {
 
 /**
- * @brief get_closest_node compares each node in nodes to query and returns a
- * pointer to the closest one. It is assumed that the vector of nodes is not
- * empty.
+ * @brief get_closest_node compares each node in nodes to query and returns a pointer to the closest one. If
+ * the nodes vector is empty then a null pointer is returned.
  * @param nodes is a vector nodes.
  * @param query is the query feacture vector.
  * @return a pointer to the closest node.
@@ -20,8 +19,8 @@ namespace traversal {
 Node* get_closest_node(std::vector<Node>& nodes, const float* query);
 
 /**
- * @brief find_nearest_leaf traverses the index recursively to find the leaf
- * closest to the given query vector.
+ * @brief find_nearest_leaf traverses the index recursively to find the leaf closest to the given query
+ * vector.
  * @param query is the query vector looking for a closest cluster.
  * @param nodes is the children vector of any internal node in the index.
  * @return the nearest leaf (Node) to the given query point.

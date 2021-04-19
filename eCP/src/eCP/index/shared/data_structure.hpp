@@ -19,14 +19,14 @@
  */
 struct Point {
   float* descriptor;
-  unsigned id;
+  unsigned long id;
 
   /**
    * @brief Point constructor. NB: Assumes that g_vector_dimensions is set.
    * @param descriptor_ is a pointer to the descriptor the Point should contain.
    * @param id_ is the id of the Point.
    */
-  explicit Point(const float* descriptor_, unsigned id_);
+  explicit Point(const float* descriptor_, unsigned long id_);
 
   /**
    * @brief Point constructor. NB: Assumes that g_vector_dimensions is set.
@@ -34,7 +34,7 @@ struct Point {
    * copied into the point.
    * @param id_ is the id of the Point.
    */
-  explicit Point(const std::vector<float> descriptor_, unsigned id_);
+  explicit Point(const std::vector<float> descriptor_, unsigned long id_);
 
   ~Point();
 
@@ -86,31 +86,37 @@ struct Node {
 enum ReclusteringPolicy { AVERAGE = 1, ABSOLUTE };
 
 /**
- * @brief Index is the definition of a constructed or partially constructed index. The struct is used to hold
- * the neededed data to be able to operate on the Index.
+ * @brief The ReclusteringScheme struct is the combined amount of information needed to decide whether a
+ * reclustering should happen when an insertion has happened.
+ */
+struct ReclusteringScheme {
+  unsigned lo_mark;                   // Lower size boundary of nodes/clusters. (min)
+  unsigned hi_mark;                   // Higher size boundary of nodes/clusters. (max)
+  ReclusteringPolicy cluster_policy;  // Reclustering policy for clusters.
+  ReclusteringPolicy node_policy;     // Reclustering policy for internal nodes.
+  explicit ReclusteringScheme();
+  explicit ReclusteringScheme(unsigned lo_mark, unsigned hi_mark, ReclusteringPolicy cluster_policy_,
+                              ReclusteringPolicy node_policy_);
+};
+
+/**
+ * @brief Index is the definition of a constructed index with the minimal index containing a root note with a
+ * single level with a single Node with a single Point. The struct is used to hold the neededed data to be
+ * able to operate on the Index.
  * @param L is the depth of the index.
- * @param index_size is the total number of descriptors contained in the index.
- * @param sc_ is the cluster size.
- * @param sn_ is the internal node size.
- * @param cluster_policy_ is the policy used to decide when to initiate a reclustering of clusters.
- * @param node_policy_ is the policy used to decide when to initiate a reclustering of internal nodes.
+ * @param size is the total number of descriptors contained in the index.
+ * @param scheme is the ReclusteringScheme set for the current index. Used during dynamic insertion.
  * @param root_node is the root node of the index. The children of this node are considered the first level of
  * the index L=1.
  */
 struct Index {
-  unsigned L;                         // Current depth
-  unsigned sc;                        // Cluster size
-  unsigned sn;                        // Internal node size
-  unsigned size;                      // Number of feature descriptors contained in index.
-  ReclusteringPolicy cluster_policy;  // Reclustering policy for clusters.
-  ReclusteringPolicy node_policy;     // Reclustering policy for internal nodes.
-  Node root;
+  unsigned L;                 // Current depth
+  unsigned long size;         // Number of feature descriptors contained in index.
+  ReclusteringScheme scheme;  // Scheme used for reclustering.
+  Node root;                  // The initial top/root node of the index.
 
-  explicit Index();
-  explicit Index(unsigned sc_, unsigned sn_, ReclusteringPolicy cluster_policy_,
-                 ReclusteringPolicy node_policy_);
-  explicit Index(unsigned L, unsigned index_size, unsigned sc_, unsigned sn_,
-                 ReclusteringPolicy cluster_policy_, ReclusteringPolicy node_policy_, Node root_node);
+  explicit Index();  // Possibly required by SWIG.
+  explicit Index(unsigned L, unsigned long index_size, Node root_node, ReclusteringScheme scheme);
 };
 
 #endif  // DATA_STRUCTURE_H
