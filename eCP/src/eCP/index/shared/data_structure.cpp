@@ -5,14 +5,14 @@
 /*
  * Point data type
  */
-Point::Point(const float* descriptor_, unsigned id_)
+Point::Point(const float* descriptor_, unsigned long id_)
     : descriptor(new float[globals::g_vector_dimensions])
     , id(id_)
 {
   std::copy(descriptor_, descriptor_ + globals::g_vector_dimensions, descriptor);
 }
 
-Point::Point(const std::vector<float> descriptor_, unsigned id_)
+Point::Point(const std::vector<float> descriptor_, unsigned long id_)
     : descriptor(new float[globals::g_vector_dimensions])
     , id(id_)
 {
@@ -60,38 +60,40 @@ Node::Node(Point p)
 Point* Node::get_leader() { return &points[0]; }
 
 /*
+ * ReclusteringScheme
+ */
+ReclusteringScheme::ReclusteringScheme(unsigned sc_, unsigned hi_mark_, ReclusteringPolicy cluster_policy_,
+                                       ReclusteringPolicy node_policy_)
+    : lo_mark(sc_)
+    , hi_mark(hi_mark_)
+    , cluster_policy(cluster_policy_)
+    , node_policy(node_policy_)
+{
+}
+
+ReclusteringScheme::ReclusteringScheme()
+    : lo_mark(100)
+    , hi_mark(100 * (1 + 0.3))
+    , cluster_policy(ReclusteringPolicy::AVERAGE)
+    , node_policy(ReclusteringPolicy::ABSOLUTE)
+{
+}
+
+/*
  * Index data type
  */
 Index::Index()
     : L(0)
-    , sc(0)
-    , sn(0)
     , size(0)
+    , scheme(ReclusteringScheme{})
     , root(Node{})
 {
 }
 
-// Used to construct the index incrementally.
-Index::Index(unsigned sc_, unsigned sn_, ReclusteringPolicy cluster_policy_, ReclusteringPolicy node_policy_)
-    : L(1)
-    , sc(sc_)
-    , sn(sn_)
-    , size(0)
-    , cluster_policy(cluster_policy_)
-    , node_policy(node_policy_)
-    , root(Node{})
-{
-}
-
-// Used to batch construct the index.
-Index::Index(unsigned L_, unsigned index_size, unsigned sc_, unsigned sn_, ReclusteringPolicy cluster_policy_,
-             ReclusteringPolicy node_policy_, Node root_node)
+Index::Index(unsigned L_, unsigned long index_size, Node root_node, ReclusteringScheme scheme_)
     : L(L_)
-    , sc(sc_)
-    , sn(sn_)
     , size(index_size)
-    , cluster_policy(cluster_policy_)
-    , node_policy(node_policy_)
+    , scheme(scheme_)
     , root(root_node)
 {
 }
