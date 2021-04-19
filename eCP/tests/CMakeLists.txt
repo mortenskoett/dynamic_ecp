@@ -9,6 +9,7 @@ add_executable(eCP_tests
     eCP_tests.cpp
     utilities_tests.cpp
     traversal_tests.cpp
+    maintenance_tests.cpp
 
   # helpers
     helpers/testhelpers_tests.cpp
