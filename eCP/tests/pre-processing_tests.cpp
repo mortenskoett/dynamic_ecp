@@ -25,7 +25,7 @@ TEST(pre_processing_tests,
   std::vector<std::vector<float>> dataset = {{5, 5, 5}};
 
   // Act
-  Index index = *pre_processing::create_index(dataset, sc, policy, policy, hilo, hilo);
+  Index index = *pre_processing::create_index(dataset, sc, hilo, hilo, policy, policy);
   ASSERT_EQ(index.size, 1);
 
   auto lo_bound_res = std::ceil(sc * (1 - hilo));
