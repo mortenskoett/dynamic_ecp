@@ -62,18 +62,18 @@ Point* Node::get_leader() { return &points[0]; }
 /*
  * ReclusteringScheme
  */
-ReclusteringScheme::ReclusteringScheme(unsigned sc_, unsigned hi_mark_, ReclusteringPolicy cluster_policy_,
+ReclusteringScheme::ReclusteringScheme(unsigned sc_, unsigned hi_bound_, ReclusteringPolicy cluster_policy_,
                                        ReclusteringPolicy node_policy_)
-    : lo_mark(sc_)
-    , hi_mark(hi_mark_)
+    : lo_bound(sc_)
+    , hi_bound(hi_bound_)
     , cluster_policy(cluster_policy_)
     , node_policy(node_policy_)
 {
 }
 
 ReclusteringScheme::ReclusteringScheme()
-    : lo_mark(100)
-    , hi_mark(100 * (1 + 0.3))
+    : lo_bound(100)
+    , hi_bound(100 * (1 + 0.3))
     , cluster_policy(ReclusteringPolicy::AVERAGE)
     , node_policy(ReclusteringPolicy::ABSOLUTE)
 {

@@ -2,8 +2,8 @@
 
 #include <eCP/index/shared/distance.hpp>
 #include <eCP/index/shared/globals.hpp>
-#include <helpers/testhelpers.hpp>
 #include <eCP/index/shared/traversal.hpp>
+#include <helpers/testhelpers.hpp>
 
 /*
  * traversal_tests
@@ -24,7 +24,7 @@ TEST(traversal_tests, get_closest_node_returns_closest_cluster)
   float* query = new float[3]{3, 3, 3};
 
   float expected[3] = {4, 4, 4};
-  Node* actual = traversal::get_closest_node(clusters, query);
+  Node* actual = traversal::get_closest_node(query, clusters);
 
   EXPECT_EQ(*actual->points[0].descriptor, *expected);
 }
@@ -44,7 +44,7 @@ TEST(traversal_tests, get_closest_node_given_query_in_clusters_returns_same)
   float* query = new float[3]{8, 8, 8};
 
   float expected[3] = {8, 8, 8};
-  Node* actual = traversal::get_closest_node(clusters, query);
+  Node* actual = traversal::get_closest_node(query, clusters);
 
   EXPECT_EQ(*actual->points[0].descriptor, *expected);
 }

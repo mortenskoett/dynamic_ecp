@@ -25,10 +25,10 @@ int main(int argc, char* argv[])
   int k = 2;           // number points to return
   int b = 2;           // number clusters to search
   const int qs = 15;   // queries to make on created index
-  unsigned p = 1'100'000;   // number of vectors
+  unsigned p = 5; //0'000;   // number of vectors
   const int d = 25;   // dimensions of vector
   const int r = INT32_MAX;  // upper bound of generated vectors
-  unsigned sc = 100;  // optimal cluster size
+  unsigned sc = 2;  // optimal cluster size
   bool hdf5 = false;   // generate S and queries
 
   // clang-format on
@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
 
   /* Index build instrumentation */
   __itt_task_begin(domain_build, __itt_null, __itt_null, handle_build);
-  Index* index = eCP::eCP_Index(S, sc, metric);
+  Index* index = eCP::eCP_Index(S, sc, metric, false);
   __itt_task_end(domain_build);
 
   /* Query instrumentation */

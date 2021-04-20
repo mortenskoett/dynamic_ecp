@@ -6,7 +6,7 @@
 
 /**
  * @file eCP.hpp
- * Library for the extended cluster pruning algorithm.
+ * Library API for the extended cluster pruning algorithm.
  *
  * @author Nikolaj Mertz
  * @author Frederik Martini
@@ -16,15 +16,24 @@
 namespace eCP {
 
 /**
- * @brief eCP_Index will create an index from a data set with a given internal node size Sn and cluster size
- * Sc.
+ * @brief eCP_Index will create an index from a dataset using the given metric and desired cluster size.
  * @param descriptors is a vector of feature descriptors that the index should be built from.
- * @param cluster_size defines the size of a cluster and is used to calculate the total number of clusters. It
- * is also used as internal node size when the depth L of the index is calculated.
- * @param metric is the used distance function for the metric space. 0 = euclidean, 1 = angular.
- * @return a pointer to the created index.
+ * @param cluster_size defines the desired size of clusters and nodes.
+ * @param metric is the utilized distance function of the metric space. See the @ref{Metric} type.
+ * @param batch_build designates when true that the index should be bulk built from the input dataset and when
+ * false that the index should be built incrementally.
+ * @returns a pointer to the constructed index.
  */
-Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned cluster_size, unsigned metric);
+Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned cluster_size, unsigned metric,
+                 bool batch_build = true);
+
+/**
+ * @brief insert will insert a descriptor into the index. It is assumed that the given descriptor is of equal
+ * dimensionality to what the index already contains.
+ * @param descriptor is the given feature descriptor to insert.
+ * @param index is the index to insert into.
+ */
+void insert(const float* descriptor, Index* const index);
 
 /**
  * @brief query queries in the index structure and returns the k nearest points.

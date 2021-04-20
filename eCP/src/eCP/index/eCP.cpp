@@ -1,5 +1,6 @@
 #include <cmath>
 #include <eCP/index/eCP.hpp>
+#include <eCP/index/maintenance.hpp>
 #include <eCP/index/pre-processing.hpp>
 #include <eCP/index/query-processing.hpp>
 #include <eCP/index/shared/data_structure.hpp>
@@ -8,11 +9,8 @@
 #include <stdexcept>
 
 namespace eCP {
-
-/*
- * Entry point for ANN-Benchmarks fit function.
- */
-Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned cluster_size, unsigned metric)
+Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned cluster_size, unsigned metric,
+                 bool batch_build)
 {
   // Set descriptor dimension globally.
   globals::g_vector_dimensions = descriptors[0].size();
@@ -22,14 +20,30 @@ Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned cl
   distance::set_distance_function(metric_type);
 
   // Build index
-  Index* index = pre_processing::create_index(descriptors, cluster_size);
+  if (batch_build) {
+    Index* index = pre_processing::create_index(descriptors, cluster_size);
+    return index;
+  }
+  else {
+    // Construct minimal index.
+    std::vector<std::vector<float>> initial_node{descriptors[0]};
+    Index* index = pre_processing::create_index(initial_node, cluster_size);
 
-  return index;
+    // Insert the rest of the dataset.
+    for (unsigned i = 1; i < descriptors.size(); ++i) {
+      maintenance::insert(descriptors[i].data(), index);
+    }
+
+    return index;
+  }
 }
 
-/*
- * Entry point for ANN-Benchmarks query function. SWIG converts python list to std::vector
- */
+void insert(const float* descriptor, Index* const index)
+{
+  // Inserts descriptor into index.
+  maintenance::insert(descriptor, index);
+}
+
 std::pair<std::vector<unsigned int>, std::vector<float>> query(Index* index, std::vector<float> query,
                                                                unsigned int k, unsigned int b)
 {

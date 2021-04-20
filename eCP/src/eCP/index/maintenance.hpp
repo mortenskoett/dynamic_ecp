@@ -6,12 +6,13 @@
 
 namespace maintenance {
 
+/**
+ * @brief insert inserts a given descriptor to the index and initiates a reclustering if necessary.
+ * @param descriptor is the descriptor to insert. It it assumed that the descriptor has the exact same
+ * dimensionality as the dataset the index was initially constructed from.
+ * @param index is the index to insert into.
+ */
 void insert(const float* descriptor, Index* const index);
-
-// Index* build_minimal_index(const float* root_descriptor, unsigned cluster_size,
-//                           ReclusteringPolicy cluster_policy = ReclusteringPolicy::AVERAGE,
-//                           ReclusteringPolicy node_policy = ReclusteringPolicy::ABSOLUTE, float lo = 0.3,
-//                           float hi = 0.3);
 
 }  // namespace maintenance
 
