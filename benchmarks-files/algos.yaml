@@ -5,7 +5,7 @@ float:
       docker-tag: ann-benchmarks-ecp
       module: ann_benchmarks.algorithms.eCP
       constructor: eCP
-      base-args: ["@metric", false]
+      base-args: ["@metric", false, false]
       run-groups:
        eCP:
           # Sc

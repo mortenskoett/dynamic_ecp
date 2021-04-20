@@ -31,8 +31,8 @@ namespace pre_processing {
  * @returns a pointer to the Index type on which queries can be performed.
  */
 Index* create_index(const std::vector<std::vector<float>>& dataset, unsigned cluster_size, float lo = 0.0,
-                    float hi = 0.0, ReclusteringPolicy cluster_policy = ReclusteringPolicy::ABSOLUTE,
-                    ReclusteringPolicy node_policy = ReclusteringPolicy::ABSOLUTE);
+                    float hi = 0.0, ReclusteringPolicy cluster_policy = ReclusteringPolicy::AVERAGE,
+                    ReclusteringPolicy node_policy = ReclusteringPolicy::AVERAGE);
 
 }  // namespace pre_processing
 
