@@ -9,9 +9,9 @@ float:
       run-groups:
        eCP:
           # Sc
-          args: [[200, 600, 1200, 1400]]
+          args: [[30, 300, 800, 1200]]
           # b
-          query-args: [[2, 5, 10]]
+          query-args: [[1, 5, 10, 20]]
     sptag:
       docker-tag: ann-benchmarks-sptag
       module: ann_benchmarks.algorithms.sptag

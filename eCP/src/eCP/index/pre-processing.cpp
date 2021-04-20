@@ -113,8 +113,9 @@ namespace pre_processing {
  * already there due to the Node constructor adding the leader to the Points vector.
  * Finally the nested levels are added as children of a single Node which acts root.
  */
-Index* create_index(const std::vector<std::vector<float>>& dataset, unsigned cluster_size,
-                    ReclusteringPolicy cluster_policy, ReclusteringPolicy node_policy, float lo, float hi)
+Index* create_index(const std::vector<std::vector<float>>& dataset, unsigned cluster_size, float lo, float hi,
+                    ReclusteringPolicy cluster_policy, ReclusteringPolicy node_policy)
+
 {
   // ** 1)
   const auto index_params =

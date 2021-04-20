@@ -5,8 +5,8 @@
 
 NAME="ecp_run_local"
 
-DATASET="random-xs-20-euclidean"
-#DATASET="glove-25-angular"
+# DATASET="random-xs-20-euclidean"
+DATASET="glove-25-angular"
 
 echo "${NAME}: Will run benchmarks on eCP. First run 'ecp_install.sh'. Dataset: $DATASET."
 read -p "${NAME}: Press enter to continue"
