@@ -12,11 +12,11 @@ namespace traversal {
 /**
  * @brief get_closest_node compares each node in nodes to query and returns a pointer to the closest one. If
  * the nodes vector is empty then a null pointer is returned.
- * @param nodes is a vector nodes.
- * @param query is the query feacture vector.
+ * @param nodes is a vector of nodes e.g. a children list or level.
+ * @param query is the query feacture vector to compare with..
  * @return a pointer to the closest node.
  */
-Node* get_closest_node(std::vector<Node>& nodes, const float* query);
+Node* get_closest_node(const float* query, std::vector<Node>& nodes);
 
 /**
  * @brief find_nearest_leaf traverses the index recursively to find the leaf closest to the given query

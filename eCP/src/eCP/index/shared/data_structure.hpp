@@ -90,12 +90,12 @@ enum ReclusteringPolicy { AVERAGE = 1, ABSOLUTE };
  * reclustering should happen when an insertion has happened.
  */
 struct ReclusteringScheme {
-  unsigned lo_mark;                   // Lower size boundary of nodes/clusters. (min)
-  unsigned hi_mark;                   // Higher size boundary of nodes/clusters. (max)
+  unsigned lo_bound;                   // Lower size boundary of nodes/clusters. (min)
+  unsigned hi_bound;                   // Higher size boundary of nodes/clusters. (max)
   ReclusteringPolicy cluster_policy;  // Reclustering policy for clusters.
   ReclusteringPolicy node_policy;     // Reclustering policy for internal nodes.
   explicit ReclusteringScheme();
-  explicit ReclusteringScheme(unsigned lo_mark, unsigned hi_mark, ReclusteringPolicy cluster_policy_,
+  explicit ReclusteringScheme(unsigned lo_bound, unsigned hi_bound, ReclusteringPolicy cluster_policy_,
                               ReclusteringPolicy node_policy_);
 };
 

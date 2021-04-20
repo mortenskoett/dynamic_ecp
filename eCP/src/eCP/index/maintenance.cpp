@@ -29,10 +29,10 @@ Node* grow_index(Node* current_root, Index* const index)
   return &index->root;
 }
 
-void recluster_internal_node(Node* const parent, unsigned internal_node_threshold)
+void recluster_internal_node(Node* const parent, unsigned desired_size)
 {
   std::vector<Node*> children;  // Total number of children of all children under parent.
-  children.reserve(internal_node_threshold * parent->children.size());
+  children.reserve(desired_size * parent->children.size());
 
   for (auto& parent_child : parent->children) {  // Collect all parent->children->children
     for (auto& child : parent_child.children) {
@@ -42,19 +42,19 @@ void recluster_internal_node(Node* const parent, unsigned internal_node_threshol
 
   // New level size is l = n / sn.
   const unsigned n = children.size();
-  const unsigned l = std::ceil(n / static_cast<float>(internal_node_threshold));  // Floating point arith.
+  const unsigned l = std::ceil(n / static_cast<float>(desired_size));  // Floating point arith.
   const auto indexes = utilities::get_random_unique_indexes(l, n);
 
   std::vector<Node> leaders;
   leaders.reserve(l);
 
   for (unsigned index : indexes) {  // Pick l random new Nodes as leaders.
-    leaders.emplace_back(*children[index]);
+    leaders.emplace_back(Node{*children[index]->get_leader()});
   }
 
   // Add each node to its nearest parent
   for (Node* node : children) {
-    traversal::find_nearest_leaf(node->get_leader()->descriptor, leaders)->children.emplace_back(*node);
+    traversal::get_closest_node(node->get_leader()->descriptor, leaders)->children.emplace_back(*node);
   }
 
   parent->children.swap(leaders);
@@ -77,18 +77,18 @@ unsigned count_children_for_children_of(const Node* parent)
 }
 
 bool is_internal_node_reclustering_required(Node* const leader, Node* const parent, ReclusteringPolicy policy,
-                                            unsigned hi_mark)
+                                            unsigned hi_bound)
 {
   switch (policy) {
     case ReclusteringPolicy::ABSOLUTE: {
-      if (leader->children.size() > hi_mark) {
+      if (leader->children.size() > hi_bound) {
         return true;
       }
       break;
     }
 
     case ReclusteringPolicy::AVERAGE: {
-      auto subtree_max{parent->children.size() * hi_mark};  // Theoretical max size based on hi watermark.
+      auto subtree_max{parent->children.size() * hi_bound};  // Theoretical max size based on hi bound.
       auto subtree_actual{count_children_for_children_of(parent)};
 
       if (subtree_actual > subtree_max) {
@@ -116,7 +116,7 @@ void recluster_cluster(Node* const cluster_parent, unsigned desired_cluster_size
   }
 
   const unsigned n = descriptors.size();
-  const unsigned l = std::ceil(n / static_cast<float>(desired_cluster_size));  // Floating point arith.
+  const unsigned l = std::ceil(n / static_cast<float>(desired_cluster_size));  // New optimal level size.
   const auto indexes = utilities::get_random_unique_indexes(l, n);
 
   std::vector<Node> leaders;  // Revised set of leaders to substitute the children of parent.
@@ -153,26 +153,26 @@ unsigned count_descriptors_for_children_of(const Node* parent)
 }
 
 /**
- * @brief is_cluster_reclustering_required computes whether a recluster is necessary based on the given
- * ReclusteringPolicy. Will pop top element from the stack.
+ * @brief is_cluster_reclustering_required computes whether a recluster of a cluster is necessary based on the
+ * given ReclusteringPolicy.
  * @param path is the stack to the cluster into which a new descriptor has been inserted.
  * @param policy is the current cluster ReclusteringPolicy.
  * @param sc_threshold is the given desired cluster size Sc of the index.
  * @returns true if a recluster is required and false otherwise.
  */
 bool is_cluster_reclustering_required(Node* const cluster, Node* const parent, ReclusteringPolicy policy,
-                                      unsigned hi_mark)
+                                      unsigned hi_bound)
 {
   switch (policy) {
     case ReclusteringPolicy::ABSOLUTE: {
-      if (cluster->points.size() > hi_mark) {
+      if (cluster->points.size() > hi_bound) {
         return true;
       }
       break;
     }
 
     case ReclusteringPolicy::AVERAGE: {
-      auto subtree_max{parent->children.size() * hi_mark};  // Theoretical max based on hi watermark.
+      auto subtree_max{parent->children.size() * hi_bound};  // Theoretical max based on hi bound.
       auto subtree_actual{count_descriptors_for_children_of(parent)};
 
       if (subtree_actual > subtree_max) {
@@ -195,7 +195,7 @@ std::stack<Node*> collect_path_to_nearest_cluster(const float* query, Node* cons
   parents.emplace(root);
 
   if (!root->children.empty()) {
-    Node* closest_child = traversal::get_closest_node(root->children, query);
+    Node* closest_child = traversal::get_closest_node(query, root->children);
     return collect_path_to_nearest_cluster(query, closest_child, parents);
   }
 
@@ -216,8 +216,8 @@ bool must_index_grow(Node* root, unsigned sn_threshold)
 
 void orchestrate_index_reclustering(std::stack<Node*>& path, Index* index)
 {
-  const unsigned max_size = index->scheme.hi_mark;
-  const unsigned desired_size = index->scheme.lo_mark;
+  const unsigned max_size = index->scheme.hi_bound;
+  const unsigned desired_size = index->scheme.lo_bound;
 
   // 1 -- Handle cluster
   auto cluster = path.top();  // The cluster that just been added to.
@@ -251,7 +251,7 @@ void orchestrate_index_reclustering(std::stack<Node*>& path, Index* index)
   auto current_root = path.top();
 
   if (must_index_grow(current_root, desired_size)) {
-    auto new_root = grow_index(current_root, index);
+    auto* new_root = grow_index(current_root, index);
     recluster_internal_node(new_root, desired_size);
   }
 }
