@@ -1,14 +1,14 @@
 #!/bin/bash
 
 #this script should only be run as root
-if [ "$EUID" -ne 0 ]
-    then echo "Please run as root"
-    exit
-fi
+# if [ "$EUID" -ne 0 ]
+#     then echo "Please run as root"
+#     exit
+# fi
 
 #if no arguments are supplied, display help
 if [[ $# -eq 0 ]]; then
-    echo -e "usage: sudo ./run.sh [commit,name,dataset,earlyhalt]"
+    echo -e "usage: sudo ./run.sh [commit,name,dataset,earlyhalt,batchbuild]"
     echo -e "flags:"
     echo -e "-d | --delete | deletes ann-benchmarks folder if exists"
     echo -e "-l | --local  | runs ann-benchmarks locally"
@@ -57,7 +57,7 @@ do
     CLEAN_STR=$(echo $arg | tr -d '[]')
     SPLIT=(${CLEAN_STR//,/ })
 
-    if [[ ${#SPLIT[@]} -ne 4 ]]; then
+    if [[ ${#SPLIT[@]} -ne 5 ]]; then
         echo -e "malformed experiment: ${SPLIT[@]}, expected 4 arguments got ${#SPLIT[@]}"
     fi
 
@@ -65,12 +65,14 @@ do
     NAME=${SPLIT[1]}
     DATASET=${SPLIT[2]}
     HALT=${SPLIT[3]}
+    BATCH=${SPLIT[4]}
 
     echo -e "RUNNING EXPERIMENT WITH FOLLOWING CONFIGURATION:"
-    echo -e "COMMIT_ID: $COMMIT_ID"
-    echo -e "NAME:      $NAME"
-    echo -e "DATASET:   $DATASET"
-    echo -e "HALT:      $HALT"
+    echo -e "COMMIT_ID:    $COMMIT_ID"
+    echo -e "NAME:         $NAME"
+    echo -e "DATASET:      $DATASET"
+    echo -e "HALT:         $HALT"
+    echo -e "BATCH_BUILD:  $BATCH"
     
     #move files from benchmarks-files into ann-benchmarks    
     cp benchmarks-files/eCP.py 		    ann-benchmarks/ann_benchmarks/algorithms/eCP.py
@@ -83,6 +85,7 @@ do
     sed -i "s/#ECP_COMMIT/RUN git checkout $COMMIT_ID/" "install/Dockerfile.ecp"
     sed -i "s/%ECP_NAME%/$NAME/" "algos.yaml"
     sed -i "s/%ECP_EA%/$HALT/" "algos.yaml"
+    sed -i "s/%ECP_BA%/$BATCH/" "algos.yaml"
 
     #remove docker image if exists to prevent failures caused by old images
     if [ $(docker images -q ann-benchmarks-ecp) ]
