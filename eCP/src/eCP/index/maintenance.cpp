@@ -17,9 +17,10 @@ namespace maintenance_helpers {
  */
 Node* grow_index(Node* current_root, Index* const index)
 {
-  // Pick single random leader from children of current root to be the new root.
+  // Pick single random leader Node from children of current root to be the new root.
   const auto random_index = utilities::get_random_unique_indexes(1, current_root->children.size()).front();
-  auto new_root = current_root->children.at(random_index);
+  auto new_root_point = *current_root->children.at(random_index).get_leader();
+  auto new_root = Node{new_root_point};
 
   // Insert new root into index.
   new_root.children.emplace_back(*current_root);  // Add old root to the children list.
@@ -52,7 +53,7 @@ void recluster_internal_node(Node* const parent, unsigned desired_size)
     leaders.emplace_back(Node{*children[index]->get_leader()});
   }
 
-  // Add each node to its nearest parent
+  // Add each node/subtree to its nearest parent
   for (Node* node : children) {
     traversal::get_closest_node(node->get_leader()->descriptor, leaders)->children.emplace_back(*node);
   }
@@ -157,7 +158,7 @@ unsigned count_descriptors_for_children_of(const Node* parent)
  * given ReclusteringPolicy.
  * @param path is the stack to the cluster into which a new descriptor has been inserted.
  * @param policy is the current cluster ReclusteringPolicy.
- * @param sc_threshold is the given desired cluster size Sc of the index.
+ * @param hi_bound is the given desired cluster/node size of the index.
  * @returns true if a recluster is required and false otherwise.
  */
 bool is_cluster_reclustering_required(Node* const cluster, Node* const parent, ReclusteringPolicy policy,

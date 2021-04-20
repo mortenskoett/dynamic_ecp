@@ -21,15 +21,16 @@ int main(int argc, char* argv[])
   // bool hdf5 = false;   // generate S and queries
 
   /* For debugging params */
-  int metric = 0;      // Distance metric - 0 = euclidean - 1 = angular - 2 = euclidean early halt
-  int k = 2;           // number points to return
-  int b = 2;           // number clusters to search
-  const int qs = 15;   // queries to make on created index
-  unsigned p = 5; //0'000;   // number of vectors
-  const int d = 25;   // dimensions of vector
+  int metric = 0;           // Distance metric - 0 = euclidean - 1 = angular - 2 = euclidean early halt
+  int k = 2;                // number points to return
+  int b = 2;                // number clusters to search
+  const int qs = 15;        // queries to make on created index
+  bool hdf5 = false;        // generate S and queries
+  const int d = 25;         // dimensions of vector
   const int r = INT32_MAX;  // upper bound of generated vectors
-  unsigned sc = 2;  // optimal cluster size
-  bool hdf5 = false;   // generate S and queries
+  unsigned p = 20;          //0'000;   // number of vectors
+  unsigned sc = 3;          // optimal cluster size
+  bool batch_build = false; // false: build incrementally, true: batch build normally
 
   // clang-format on
 
@@ -87,7 +88,7 @@ int main(int argc, char* argv[])
 
   /* Index build instrumentation */
   __itt_task_begin(domain_build, __itt_null, __itt_null, handle_build);
-  Index* index = eCP::eCP_Index(S, sc, metric, false);
+  Index* index = eCP::eCP_Index(S, sc, metric, batch_build);
   __itt_task_end(domain_build);
 
   /* Query instrumentation */

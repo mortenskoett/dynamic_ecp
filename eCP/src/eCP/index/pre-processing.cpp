@@ -113,12 +113,12 @@ namespace pre_processing {
  * already there due to the Node constructor adding the leader to the Points vector.
  * Finally the nested levels are added as children of a single Node which acts root.
  */
-Index* create_index(const std::vector<std::vector<float>>& dataset, unsigned cluster_size_sc,
+Index* create_index(const std::vector<std::vector<float>>& dataset, unsigned cluster_size,
                     ReclusteringPolicy cluster_policy, ReclusteringPolicy node_policy, float lo, float hi)
 {
   // ** 1)
   const auto index_params =
-      pre_processing_helpers::calculate_initial_index_params(dataset.size(), cluster_size_sc, lo, hi);
+      pre_processing_helpers::calculate_initial_index_params(dataset.size(), cluster_size, lo, hi);
 
   const auto random_leader_indexes = pre_processing_helpers::generate_leaders_indexes(
       dataset.size(), index_params.level_sizes, index_params.L);
