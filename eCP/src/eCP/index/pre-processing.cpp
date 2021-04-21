@@ -75,7 +75,6 @@ IndexInitParams calculate_initial_index_params(unsigned dataset_size, unsigned s
         "pre_processing: Range of input lo parameter must be greater than 0.0 and less than 1.0");
   }
 
-  // FIXME: Test that these values are correctly calculated.
   unsigned lo_bound =
       std::ceil(sc * (1 - lo));  // Lo bound depicting the initial use of node/cluster capacity.
   unsigned hi_bound = std::ceil(sc * (1 + hi));  // Hi bound depicting the max size of a node/cluster.

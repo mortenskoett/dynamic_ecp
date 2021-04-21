@@ -195,7 +195,7 @@ TEST(maintenance_helpers_tests, count_descriptors_given_parent_with_2_cluster_wi
   root.children.back().points.emplace_back(p2);
 
   // Act
-  auto result = maintenance_helpers::count_descriptors_for_children_of(&root);
+  auto result = maintenance_helpers::count_points_of_children(&root);
   EXPECT_EQ(result, 4);
 }
 
@@ -227,7 +227,8 @@ TEST(maintenance_helpers_tests,
   stack.pop();
 
   // Assert
-  auto result = maintenance_helpers::is_cluster_reclustering_required(cluster, parent, policy, sc);
+  auto result = maintenance_helpers::is_reclustering_required(maintenance_helpers::count_points_of_children,
+                                                              cluster->points.size(), parent, policy, sc);
 
   // Total number of descriptors collected as descendants of parent.
   EXPECT_EQ(result, true);
@@ -266,7 +267,8 @@ TEST(
   stack.pop();
 
   // Assert
-  auto result = maintenance_helpers::is_cluster_reclustering_required(cluster, parent, policy, sc);
+  auto result = maintenance_helpers::is_reclustering_required(maintenance_helpers::count_points_of_children,
+                                                              cluster->points.size(), parent, policy, sc);
 
   // Total number of descriptors collected as descendants of parent.
   EXPECT_EQ(result, false);
@@ -306,7 +308,8 @@ TEST(
   stack.pop();
 
   // Assert
-  auto result = maintenance_helpers::is_cluster_reclustering_required(cluster, parent, policy, sc);
+  auto result = maintenance_helpers::is_reclustering_required(maintenance_helpers::count_points_of_children,
+                                                              cluster->points.size(), parent, policy, sc);
 
   // Total number of descriptors collected as descendants of parent.
   EXPECT_EQ(result, true);
@@ -341,7 +344,8 @@ TEST(
   stack.pop();
 
   // Assert
-  auto result = maintenance_helpers::is_cluster_reclustering_required(cluster, parent, policy, sc);
+  auto result = maintenance_helpers::is_reclustering_required(maintenance_helpers::count_points_of_children,
+                                                              cluster->points.size(), parent, policy, sc);
 
   EXPECT_EQ(result, false);
 }

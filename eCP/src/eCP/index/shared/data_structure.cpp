@@ -36,12 +36,14 @@ Point::Point(Point&& other) noexcept
 }
 
 // Copy+Move assignment operator. Notice takes concrete instance.
-Point& Point::operator=(Point other) noexcept {
+Point& Point::operator=(Point other) noexcept
+{
   swap(*this, other);
   return *this;
 }
 
-void swap(Point& fst, Point& snd) {
+void swap(Point& fst, Point& snd)
+{
   using std::swap;
   swap(fst.id, snd.id);
   swap(fst.descriptor, snd.descriptor);
@@ -60,7 +62,7 @@ Node::Node(Point p)
 Point* Node::get_leader() { return &points[0]; }
 
 /*
- * ReclusteringScheme
+ * ReclusteringScheme default constructor.
  */
 ReclusteringScheme::ReclusteringScheme(unsigned sc_, unsigned hi_bound_, ReclusteringPolicy cluster_policy_,
                                        ReclusteringPolicy node_policy_)
@@ -71,6 +73,9 @@ ReclusteringScheme::ReclusteringScheme(unsigned sc_, unsigned hi_bound_, Reclust
 {
 }
 
+/*
+ * Empty constructor.
+ */
 ReclusteringScheme::ReclusteringScheme()
     : lo_bound(100)
     , hi_bound(100 * (1 + 0.3))

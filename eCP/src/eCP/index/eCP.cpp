@@ -24,6 +24,7 @@ Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned cl
     Index* index = pre_processing::create_index(descriptors, cluster_size);
     return index;
   }
+
   else {
     // Construct minimal index.
     std::vector<std::vector<float>> initial_node{descriptors[0]};
