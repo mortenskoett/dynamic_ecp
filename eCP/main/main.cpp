@@ -28,8 +28,8 @@ int main(int argc, char* argv[])
   bool hdf5 = false;        // generate S and queries
   const int d = 25;         // dimensions of vector
   const int r = INT32_MAX;  // upper bound of generated vectors
-  unsigned p = 20;          //0'000;   // number of vectors
-  unsigned sc = 3;          // optimal cluster size
+  unsigned p = 500'000;          // number of vectors
+  unsigned sc = 100;          // optimal cluster size
   bool batch_build = false; // false: build incrementally, true: batch build normally
 
   // clang-format on
