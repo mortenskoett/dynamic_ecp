@@ -30,12 +30,12 @@ Node* grow_index(Node* current_root, Index* const index)
   return &index->root;
 }
 
-void recluster_internal_node(Node* const parent, unsigned desired_size)
+void recluster_internal_node(Node* const node_parent, unsigned node_lo_size, unsigned node_hi_size)
 {
   std::vector<Node*> children;  // Total number of children of all children under parent.
-  children.reserve(desired_size * parent->children.size());
+  children.reserve(node_hi_size * node_parent->children.size());  // Allocate max potential size.
 
-  for (auto& parent_child : parent->children) {  // Collect all parent->children->children
+  for (auto& parent_child : node_parent->children) {  // Collect all parent->children->children
     for (auto& child : parent_child.children) {
       children.emplace_back(&child);
     }
@@ -43,7 +43,7 @@ void recluster_internal_node(Node* const parent, unsigned desired_size)
 
   // New level size is l = n / sn.
   const unsigned n = children.size();
-  const unsigned l = std::ceil(n / static_cast<float>(desired_size));  // Floating point arith.
+  const unsigned l = std::ceil(n / static_cast<float>(node_lo_size));
   const auto indexes = utilities::get_random_unique_indexes(l, n);
 
   std::vector<Node> leaders;
@@ -58,7 +58,7 @@ void recluster_internal_node(Node* const parent, unsigned desired_size)
     traversal::get_closest_node(node->get_leader()->descriptor, leaders)->children.emplace_back(*node);
   }
 
-  parent->children.swap(leaders);
+  node_parent->children.swap(leaders);
 }
 
 /**
@@ -105,10 +105,10 @@ bool is_internal_node_reclustering_required(Node* const leader, Node* const pare
   return false;
 }
 
-void recluster_cluster(Node* const cluster_parent, unsigned desired_cluster_size)
+void recluster_cluster(Node* const cluster_parent, unsigned cluster_lo_size, unsigned cluster_hi_size)
 {
   std::vector<Point*> descriptors;  // Total number of descriptors of all children under parent.
-  descriptors.reserve(desired_cluster_size * cluster_parent->children.size());
+  descriptors.reserve(cluster_hi_size * cluster_parent->children.size());  // Allocate max potential size.
 
   for (auto& cluster : cluster_parent->children) {  // Collect all descriptors as pointers.
     for (auto& point : cluster.points) {
@@ -117,7 +117,7 @@ void recluster_cluster(Node* const cluster_parent, unsigned desired_cluster_size
   }
 
   const unsigned n = descriptors.size();
-  const unsigned l = std::ceil(n / static_cast<float>(desired_cluster_size));  // New optimal level size.
+  const unsigned l = std::ceil(n / static_cast<float>(cluster_lo_size));  // New optimal level size.
   const auto indexes = utilities::get_random_unique_indexes(l, n);
 
   std::vector<Node> leaders;  // Revised set of leaders to substitute the children of parent.
@@ -125,7 +125,7 @@ void recluster_cluster(Node* const cluster_parent, unsigned desired_cluster_size
 
   for (unsigned index : indexes) {  // Pick l random leaders from set of descriptors.
     auto node = Node{*descriptors[index]};
-    node.points.reserve(desired_cluster_size);
+    node.points.reserve(cluster_hi_size);  // Allocate max potential size.
     leaders.emplace_back(node);
     descriptors[index] = nullptr;  // Because it will make it easier to circumvent duplicates below.
   }
@@ -229,7 +229,7 @@ void orchestrate_index_reclustering(std::stack<Node*>& path, Index* index)
     return;
   }
 
-  recluster_cluster(leader, desired_size);
+  recluster_cluster(leader, desired_size, max_size);
 
   // 2 -- Handle nodes in index
   // Recluster internal nodes above the cluster and below the root node.
@@ -241,7 +241,7 @@ void orchestrate_index_reclustering(std::stack<Node*>& path, Index* index)
       return;
     }
 
-    recluster_internal_node(leader_parent, desired_size);
+    recluster_internal_node(leader_parent, desired_size, max_size);
     leader = leader_parent;  // Leader will point to the leader below on next iteration.
   }
 
@@ -253,7 +253,7 @@ void orchestrate_index_reclustering(std::stack<Node*>& path, Index* index)
 
   if (must_index_grow(current_root, desired_size)) {
     auto* new_root = grow_index(current_root, index);
-    recluster_internal_node(new_root, desired_size);
+    recluster_internal_node(new_root, desired_size, max_size);
   }
 }
 
