@@ -1,12 +1,13 @@
 # -- Shared Library --
 # Not super good and only for CMake 3.12 or later:
-file(GLOB SHARED_SRC_LIST CONFIGURE_DEPENDS "${ECP_SOURCE_DIR}/src/eCP/index/shared/*.cpp")
-file(GLOB SHARED_HDR_LIST CONFIGURE_DEPENDS "${ECP_SOURCE_DIR}/src/eCP/index/shared/*.hpp")
+file(GLOB_RECURSE SHARED_SOURCE_FILES CONFIGURE_DEPENDS
+  ${ECP_SOURCE_DIR}/src/eCP/index/shared/*.cpp
+  ${ECP_SOURCE_DIR}/src/eCP/index/shared/*.hpp
+)
 
 add_library(sharedLib
   SHARED
-  ${SHARED_SRC_LIST}
-  ${SHARED_HDR_LIST}
+  ${SHARED_SOURCE_FILES}
 )
 
 target_include_directories(sharedLib
