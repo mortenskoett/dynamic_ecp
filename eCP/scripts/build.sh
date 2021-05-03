@@ -1,7 +1,9 @@
 #! /usr/bin/env bash
 
-# This script will apply make to the Makefile to compile an executable in the build dir
+# This script will build a configured CMake project using Make. It expects a
+# build dir to exist one level up in the directory structure.
 
-#cmake --build ../build --config Debug
-#cmake --build ../build -- VERBOSE=1
-cmake --build ../build
+echo "Building Cmake..."
+[ ! -d ../build ] && echo "Build directory does not exist... Exiting." && exit 1
+cd ../build
+cmake --build ./ --target all

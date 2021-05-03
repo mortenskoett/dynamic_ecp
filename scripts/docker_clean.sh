@@ -1,7 +1,14 @@
 #! /usr/bin/env bash
 
-echo "Will remove all docker images..."
+# Kills and cleans all Docker
+
+echo "This script will kill all Docker instances and remove ALL images."
 read -p "Press enter to continue"
 
+echo "Closing running instances..."
 docker ps -a -q | xargs docker rm
-docker rmi $(docker images -a -q)
+
+echo "Removing all images..."
+docker images -a -q | xargs docker rmi -f
+
+echo "Done."

@@ -1,43 +1,52 @@
 #! /usr/bin/env bash
 
-# Script to install eCP algorithm into ann-benchmarks and build ONLY eCP. It is assumed that 
-# the 'ann-benchmarks' and the 'eCP' repositories are located in the same 
-# dir './' and that this script is called from './eCP.
-# It is also assumed that python 3.6 is used eg. using venv and that the remote contains the
-# code as the ecp docker image will pull it down inside ann-benchmarks.
-#
+# Script to install and build eCP such that it can be run locally from ann-benchmarks dir. 
+# It is assumed that the 'ann-benchmarks' and the 'eCP' repositories are located in the same 
+# dir './' and that this script is called from './eCP/scripts.
+
+# Attention: It is necessary to set REPO_DIR_NAME variable to the name you have
+# given the eCP repository.
+
 # Example:
 # ./ 
 #   ann-benchmarks/
-#   eCp/
+#   eCP/
 #     scripts/
 
-REPO_NAME="dynamic_eCP"
-DATASET="random-xs-20-euclidean"
+REPO_DIR_NAME="eCP"
+NAME="ecp_install"
 
-echo "This will install eCP into Ann-Benchmarks"
-read -p "Press enter to continue"
+echo "${NAME}: Will generate wrapper, copy relevant ann-benchmarks files + generated wrapper."
+read -p "${NAME}: Press enter to continue"
+
+echo "${NAME}: Generating wrapper"
+./gen_wrapper.sh
 
 cd ../..
 
 [ ! -d ann-benchmarks ] \
-    && echo "Cloning new ann-benchmarks repo" \
-    && git clone https://github.com/mortenskoett/ann-benchmarks/
+    && echo "${NAME}: Cloning new ann-benchmarks repo" \
+    && git clone https://github.com/erikbern/ann-benchmarks
 
-echo "Copy eCP necessary files"
-cp -r ${REPO_NAME}/ann-benchmarks/* ann-benchmarks/
+echo "${NAME}: Copy eCP necessary files"
+yes | cp -rv ${REPO_DIR_NAME}/benchmarks-files/eCP.py					ann-benchmarks/ann_benchmarks/algorithms/eCP.py
+yes | cp -rv ${REPO_DIR_NAME}/benchmarks-files/Dockerfile.ecp ann-benchmarks/install/Dockerfile.ecp
+yes | cp -rv ${REPO_DIR_NAME}/benchmarks-files/algos.yaml			ann-benchmarks/algos.yaml
 
-echo "Setup python 3.6 env inside ann-benchmarks"
+
+echo "${NAME}: Copying generated files"
+yes | cp -rv ${REPO_DIR_NAME}/eCP/build/swig/_eCP_wrapper.so ann-benchmarks/
+yes | cp -rv ${REPO_DIR_NAME}/eCP/build/swig/eCP_wrapper.py ann-benchmarks/
+
+echo "${NAME}: Setup python 3.6 env inside ann-benchmarks"
 cd ann-benchmarks
 python3.6 -m venv env
 source env/bin/activate
 
-echo "Install dependencies"
+echo "${NAME}: Install dependencies"
 pip install -r requirements.txt
 
-echo "Building ONLY eCP docker image"
-python install.py --algorithm ecp
+#echo "Building ONLY eCP docker image"
+#python install.py --algorithm ecp
 
-# echo "Run test on ${DATASET}"
-# python run.py --algorithm eCP --dataset ${DATASET}
-# sudo python plot.py --dataset ${DATASET}
+echo "${NAME}: Done."

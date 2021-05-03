@@ -2,4 +2,4 @@
 
 # This script will apply make to the Makefile to compile an executable in the build dir
 
-exec ../build/main/main
+exec ../build/app/main
