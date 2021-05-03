@@ -53,6 +53,7 @@ target_include_directories(eCPLib
 
 target_link_libraries(eCPLib
   sharedLib
+	utilLib
 )
 
 # -- Utilities Library --
@@ -61,6 +62,11 @@ add_library(utilLib
 )
 
 target_compile_options(utilLib PRIVATE ${cflags})
+
+target_link_libraries(utilLib
+  PRIVATE
+    HDF5::HDF5
+)
 
 target_include_directories(utilLib
   PUBLIC
