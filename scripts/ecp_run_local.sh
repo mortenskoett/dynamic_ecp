@@ -5,10 +5,10 @@
 
 NAME="ecp_run_local"
 
-# DATASET="random-xs-20-euclidean"
-DATASET="glove-25-angular"
+DATASET="random-xs-20-euclidean"
+# DATASET="glove-25-angular"
 
-echo "${NAME}: Will run benchmarks on eCP. First run 'ecp_install.sh'. Dataset: $DATASET."
+echo "${NAME}: Will run benchmarks on eCP-Original. First run 'ecp_install.sh'. Dataset: $DATASET."
 read -p "${NAME}: Press enter to continue"
 
 # Copy saved dataset if it exists
@@ -26,7 +26,7 @@ python3.6 -m venv env
 source env/bin/activate
 
 echo "${NAME}: Running tests"
-python run.py --local --algorithm eCP --dataset ${DATASET}
+python run.py --local --algorithm eCP-Original --dataset ${DATASET}
 
 echo "${NAME}: Creating plots and website"
 python plot.py --dataset ${DATASET}

@@ -1,17 +1,15 @@
 float:
   any:
-    eCP:
+    eCP-Original:
       disabled: false
       docker-tag: ann-benchmarks-ecp
       module: ann_benchmarks.algorithms.eCP
       constructor: eCP
-      base-args: ["@metric", false, false]
+      base-args: ["@metric"]
       run-groups:
-       eCP:
-          # Sc
-          args: [[30, 300, 800, 1200]]
-          # b
-          query-args: [[1, 5, 10, 20]]
+        eCP:
+          args: [[1,2,3]]
+          query-args: [[1,2,3,4,5,10,20]]
     sptag:
       docker-tag: ann-benchmarks-sptag
       module: ann_benchmarks.algorithms.sptag
@@ -691,5 +689,3 @@ bit:
             - {"n_neighbors": [120], "diversify_epsilon": [0.0, 1.0],
                "pruning_degree_multiplier":[2.0, 2.5], leaf_size: 80}
           query-args: [[0.08, 0.16, 0.20, 0.24, 0.28, 0.32, 0.36]]
-
-
