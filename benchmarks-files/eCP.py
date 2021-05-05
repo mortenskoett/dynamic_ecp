@@ -6,7 +6,7 @@ from ann_benchmarks.algorithms.base import BaseANN
 class eCP(BaseANN):
     def __init__(self, metric, L):
         self.L = L
-        self.name = "eCP"
+        self.name = "eCP-Modified"
         
         if(metric == 'angular'):
             self.metric = 1
@@ -31,4 +31,4 @@ class eCP(BaseANN):
         self.b = b
 
     def __str__(self):
-        return 'eCP(L=%s, b=%s)' % (self.L, self.b)
+        return 'eCP-Modified(L=%s, b=%s)' % (self.L, self.b)

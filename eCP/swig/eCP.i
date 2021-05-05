@@ -17,8 +17,8 @@ namespace std {
   %template(FloatPointerVector) std::vector<float*>;
 }
 
-%include "../include/eCP/index/eCP.hpp"
-%include "../src/eCP/index/shared/data_structure.hpp"
+// %include "../include/eCP/index/eCP.hpp"
+// %include "../src/eCP/index/shared/data_structure.hpp"
 
 %newobject eCP::eCP_Index;
 
