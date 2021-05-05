@@ -84,6 +84,12 @@ int main(int argc, char *argv[]) {
     queries = utilities::generate_descriptors(qs, d, r);
   }
 
+  std::cout << "\nParams: \n";
+  std::cout << "L: " << L << "\n";
+  std::cout << "metric: " << metric << "\n";
+  std::cout << "k: " << k << "\n";
+  std::cout << "b: " << b << std::endl;
+
   /* Index build instrumentation */
   __itt_task_begin(domain_build, __itt_null, __itt_null, handle_build);
   Index *index = eCP::eCP_Index(S, L, metric);
