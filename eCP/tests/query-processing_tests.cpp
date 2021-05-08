@@ -1,23 +1,24 @@
+#include <gtest/gtest.h>
+
 #include <eCP/index/eCP.hpp>
 #include <eCP/index/query-processing.hpp>
 #include <eCP/index/shared/distance.hpp>
 #include <eCP/index/shared/globals.hpp>
-#include <gtest/gtest.h>
 
 /* Helpers */
-Index* get_index(int descriptors_amount = 10)
-{
-  unsigned sc = 1000;
+// Index* get_index(int descriptors_amount = 10)
+//{
+//  unsigned sc = 1000;
 
-  std::vector<std::vector<float>> descriptors;
+//  std::vector<std::vector<float>> descriptors;
 
-  for (int i = 0; i < descriptors_amount + 1; i++) {
-    descriptors.push_back({(float)i, (float)i, (float)i});
-  }
+//  for (int i = 0; i < descriptors_amount + 1; i++) {
+//    descriptors.push_back({(float)i, (float)i, (float)i});
+//  }
 
-  Index* index = eCP::eCP_Index(descriptors, sc, 0);
-  return index;
-}
+//  Index* index = eCP::eCP_Index(descriptors, sc, 0);
+//  return index;
+//}
 
 /* Tests */
 

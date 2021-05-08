@@ -48,8 +48,14 @@ struct IndexInitParams {
   unsigned L;                         // Depth of index.
   const unsigned lo_bound;            // Low bound used as initial size for clusters and nodes.
   const unsigned hi_bound;  // High bound used as allocation size and later as max size before reluster.
-  const float lo;           // Percentage increasing amount of clusters by decreasing size of a cluster.
-  const float hi;           // Percentage decreasing the likelihood of a recluster.
+
+  IndexInitParams(std::vector<unsigned> level_sizes_, unsigned L_, unsigned lo_bound_, unsigned hi_bound_)
+      : level_sizes(level_sizes_)
+      , L(L_)
+      , lo_bound(lo_bound_)
+      , hi_bound(hi_bound_)
+  {
+  }
 };
 
 /**
@@ -58,26 +64,30 @@ struct IndexInitParams {
  * input.
  * @param dataset_size is the size of the input dataset.
  * @param sc is the desired cluster and internal node size.
- * @param lo is a decimal percentage subtracted from sc for more clusters due to less filled clusters. E.g.
- * for input 0.3, 70% of full capacity of each cluster/node will be used.
- * @param hi enlarges sn to circumvent nodes from triggering a reclustering immediately. E.g. for input 0.3, a
- * reclustering will first be initialized when node/cluster size is 130% of capacity.
+ * @param span is a decimal percentage 0.0 < p < 1.0 that is used to calculate the lower and the higher
+ * bounded sizes of cluster and internal nodes.
  * @returns the IndexInitParam struct which contains the needed values.
  */
-IndexInitParams calculate_initial_index_params(unsigned dataset_size, unsigned sc, float lo, float hi)
+IndexInitParams calculate_initial_index_params(unsigned dataset_size, unsigned sc, float span)
 {
   if (dataset_size < 1) {
     throw std::invalid_argument("pre_processing: Size of input dataset (n) must be larger than 0.");
   }
 
-  if (lo >= 1) {
+  if (span >= 1) {
     throw std::invalid_argument(
         "pre_processing: Range of input lo parameter must be greater than 0.0 and less than 1.0");
   }
 
   unsigned lo_bound =
-      std::ceil(sc * (1 - lo));  // Lo bound depicting the initial use of node/cluster capacity.
-  unsigned hi_bound = std::ceil(sc * (1 + hi));  // Hi bound depicting the max size of a node/cluster.
+      std::ceil(sc * (1 - span));  // Lo bound depicting the initial use of node/cluster capacity.
+
+  if (lo_bound < 1) {
+    throw std::logic_error(
+        "pre_processing: Calculated lo bound must be greater than 1 after applying lo to sc.");
+  }
+
+  unsigned hi_bound = std::ceil(sc * (1 + span));  // Hi bound depicting the max size of a node/cluster.
   unsigned l = std::ceil(dataset_size / static_cast<float>(lo_bound));  // Total amount clusters.
 
   // Calculate the size of each level above L.
@@ -92,7 +102,7 @@ IndexInitParams calculate_initial_index_params(unsigned dataset_size, unsigned s
     L++;
   }
 
-  return IndexInitParams{level_sizes, L, lo_bound, hi_bound, lo, hi};
+  return IndexInitParams(level_sizes, L, lo_bound, hi_bound);
 }
 
 }  // namespace pre_processing_helpers
@@ -112,13 +122,12 @@ namespace pre_processing {
  * already there due to the Node constructor adding the leader to the Points vector.
  * Finally the nested levels are added as children of a single Node which acts root.
  */
-Index* create_index(const std::vector<std::vector<float>>& dataset, unsigned cluster_size, float lo, float hi,
-                    ReclusteringPolicy cluster_policy, ReclusteringPolicy node_policy)
+Index* create_index(const std::vector<std::vector<float>>& dataset, unsigned sc, float span,
+                    ReclusteringPolicy cluster_policy, ReclusteringPolicy n_policy)
 
 {
   // ** 1)
-  const auto index_params =
-      pre_processing_helpers::calculate_initial_index_params(dataset.size(), cluster_size, lo, hi);
+  const auto index_params = pre_processing_helpers::calculate_initial_index_params(dataset.size(), sc, span);
 
   const auto random_leader_indexes = pre_processing_helpers::generate_leaders_indexes(
       dataset.size(), index_params.level_sizes, index_params.L);
@@ -182,7 +191,7 @@ Index* create_index(const std::vector<std::vector<float>>& dataset, unsigned clu
   root_node.children.swap(previous_level);  // Insert index levels as children of new root.
 
   // Create reclustering scheme based on input.
-  auto scheme = ReclusteringScheme{index_params.lo_bound, index_params.hi_bound, cluster_policy, node_policy};
+  auto scheme = ReclusteringScheme{index_params.lo_bound, index_params.hi_bound, cluster_policy, n_policy};
 
   return new Index{index_params.L, dataset.size(), root_node, scheme};
 }

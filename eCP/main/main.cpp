@@ -30,6 +30,9 @@ int main(int argc, char* argv[])
   const int r = INT32_MAX;  // upper bound of generated vectors
   unsigned p = 24;          // number of vectors
   unsigned sc = 2;          // optimal cluster size
+  float span = 0.0;         // Used to decide min/max bounded size on clusters/internal nodes.
+  unsigned cpol = 1;        // Cluster reclustering policy
+  unsigned npol = 1;        // Node reclustering policy
   bool batch_build = false; // false: build incrementally, true: batch build normally
 
   // clang-format on
@@ -89,7 +92,7 @@ int main(int argc, char* argv[])
 
   /* Index build instrumentation */
   __itt_task_begin(domain_build, __itt_null, __itt_null, handle_build);
-  Index* index = eCP::eCP_Index(S, sc, metric, batch_build);
+  Index* index = eCP::eCP_Index(S, metric, sc, span, cpol, npol, batch_build);
   __itt_task_end(domain_build);
 
   /* Query instrumentation */

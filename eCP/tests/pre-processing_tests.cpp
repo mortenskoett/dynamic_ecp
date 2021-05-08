@@ -25,7 +25,7 @@ TEST(pre_processing_tests,
   std::vector<std::vector<float>> dataset = {{5, 5, 5}};
 
   // Act
-  Index index = *pre_processing::create_index(dataset, sc, hilo, hilo, policy, policy);
+  Index index = *pre_processing::create_index(dataset, sc, hilo, policy, policy);
   ASSERT_EQ(index.size, 1);
 
   auto lo_bound_res = std::ceil(sc * (1 - hilo));
@@ -56,7 +56,8 @@ TEST(pre_processing_tests,
   };
 
   unsigned sc = 2;
-  auto index = pre_processing::create_index(dataset, sc);
+  auto index = pre_processing::create_index(dataset, sc, 0.0, ReclusteringPolicy::ABSOLUTE,
+                                            ReclusteringPolicy::ABSOLUTE);
   auto result = testhelpers::measure_depth_from(index->root);
 
   // assert
@@ -70,8 +71,7 @@ TEST(pre_processing_tests,
   unsigned sc = 2;
   distance::set_distance_function(distance::Metric::EUCLIDEAN_OPT_UNROLL);
   globals::g_vector_dimensions = 3;
-  float lo = 0.3;
-  float hi = 0.3;
+  float span = 0.3;
 
   std::vector<std::vector<float>> dataset{
       {1, 2, 3},
@@ -80,13 +80,13 @@ TEST(pre_processing_tests,
       {10, 11, 12},
   };
 
-  auto index_params = pre_processing_helpers::calculate_initial_index_params(dataset.size(), sc, lo, hi);
+  auto index_params = pre_processing_helpers::calculate_initial_index_params(dataset.size(), sc, span);
 
   // act
   auto leader_indexes = pre_processing_helpers::generate_leaders_indexes(
       dataset.size(), index_params.level_sizes, index_params.L);
 
-  auto first_level = pre_processing::create_index(dataset, sc);
+  auto first_level = pre_processing::create_index(dataset, sc, span);
 
   auto root =
       Node{Point{{3, 3, 3}, 100}};  // FIXME: Remove this when the index uses a single Node as root node
@@ -108,12 +108,11 @@ TEST(pre_processing_helpers_tests,
   auto dataset_size = 12;
   auto sc = 2;
   auto L = 2;
-  float lo = 0.3;
-  float hi = 0.3;
+  float span = 0.3;
 
   //  std::vector<unsigned> level_sizes = {6, 3, 2};
   auto level_sizes =
-      pre_processing_helpers::calculate_initial_index_params(dataset_size, sc, lo, hi).level_sizes;
+      pre_processing_helpers::calculate_initial_index_params(dataset_size, sc, span).level_sizes;
   ASSERT_EQ(level_sizes.size(), 3);
 
   auto leader_indexes = pre_processing_helpers::generate_leaders_indexes(dataset_size, level_sizes, L);
@@ -128,18 +127,13 @@ TEST(pre_processing_helpers_tests,
 {
   auto dataset_size = 100;
   auto sc = 10;
-  float lo = 0.3;
-  float hi = 0.3;
+  float span = 0.3;
 
-  auto res = pre_processing_helpers::calculate_initial_index_params(dataset_size, sc, lo, hi);
+  auto res = pre_processing_helpers::calculate_initial_index_params(dataset_size, sc, span);
   auto L = res.L;
-  auto lo_res = res.lo;  // 0.3
-  auto hi_res = res.hi;  // 0.3
 
   // The values were found using excel calculations based on input.
-  EXPECT_EQ(res.hi_bound, sc * (1 + hi));
-  EXPECT_EQ(res.lo_bound, sc * (1 - lo));
+  EXPECT_EQ(res.hi_bound, sc * (1 + span));
+  EXPECT_EQ(res.lo_bound, sc * (1 - span));
   EXPECT_EQ(L, 2);
-  EXPECT_NEAR(lo_res, lo, 0.0001);
-  EXPECT_NEAR(hi_res, hi, 0.0001);
 }

@@ -1,7 +1,8 @@
-﻿#include <eCP/index/eCP.hpp>
+﻿#include <gtest/gtest.h>
+
+#include <eCP/index/eCP.hpp>
 #include <eCP/index/pre-processing.hpp>
 #include <eCP/index/shared/data_structure.hpp>
-#include <gtest/gtest.h>
 #include <helpers/testhelpers.hpp>
 
 /* Helpers */
@@ -15,7 +16,7 @@ Index* get_index()
       {25, 25, 25}, {29, 29, 29}, {32, 32, 32}, {40, 40, 40}, {7, 7, 7},
   };
 
-  return eCP::eCP_Index(descriptors, sc, 0);
+  return pre_processing::create_index(descriptors, sc);
 }
 
 /* Tests */

@@ -8,9 +8,19 @@
 #include <eCP/index/shared/globals.hpp>
 #include <stdexcept>
 
+ReclusteringPolicy convert_unsigned_to_reclustering_policy(unsigned val)
+{
+  if (val < 1 || val > 2) {
+    throw std::invalid_argument("Invalid unsigned given. Cannot be converted to ReclusteringStrategy.");
+  }
+
+  return static_cast<ReclusteringPolicy>(val);
+}
+
 namespace eCP {
-Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned cluster_size, unsigned metric,
-                 bool batch_build)
+
+Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned metric, unsigned sc, float span,
+                 unsigned c_policy, unsigned n_policy, bool batch_build)
 {
   // Set descriptor dimension globally.
   globals::g_vector_dimensions = descriptors[0].size();
@@ -19,17 +29,20 @@ Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned cl
   auto metric_type = static_cast<distance::Metric>(metric);
   distance::set_distance_function(metric_type);
 
+  // Convert input to internally used strategies
+  auto cluster_policy = convert_unsigned_to_reclustering_policy(c_policy);
+  auto node_policy = convert_unsigned_to_reclustering_policy(n_policy);
+
   // Build index
   if (batch_build) {
-    Index* index = pre_processing::create_index(descriptors, cluster_size);
+    Index* index = pre_processing::create_index(descriptors, sc, span, cluster_policy, node_policy);
     return index;
   }
 
   else {
     // Construct minimal index.
     std::vector<std::vector<float>> initial_node{descriptors[0]};
-    Index* index = pre_processing::create_index(initial_node, cluster_size, 0.3, 0.3,
-                                                ReclusteringPolicy::AVERAGE, ReclusteringPolicy::AVERAGE);
+    Index* index = pre_processing::create_index(initial_node, sc, span, cluster_policy, node_policy);
 
     // Insert the rest of the dataset.
     for (unsigned i = 1; i < descriptors.size(); ++i) {
