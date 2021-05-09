@@ -7,7 +7,8 @@ NAME="ecp_run_local"
 ALGO="eCP-Modified"
 
 # DATASET="random-xs-20-euclidean"
-DATASET="glove-25-angular"
+# DATASET="glove-25-angular"
+DATASET="sift-128-euclidean"
 # DATASET="fashion-mnist-784-euclidean"
 
 echo "${NAME}: Will run benchmarks on ${ALGO}. First run 'ecp_install.sh'. Dataset: $DATASET."
