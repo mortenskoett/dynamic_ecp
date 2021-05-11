@@ -157,8 +157,10 @@ Index* create_index(const std::vector<std::vector<float>>& dataset, unsigned sc,
     // Reconstruct Node to not copy children/points into current level.
     else {
       for (auto index : *it) {
-        auto* node = &previous_level[index];
-        current_level.emplace_back(Node{Point{*node->get_leader()}});
+        auto* prev_node = &previous_level[index];
+        auto node{Node{Point{*prev_node->get_leader()}}};
+        node.children.reserve(index_params.hi_bound);
+        current_level.emplace_back(node);
       }
 
       // Add all nodes from below level as children of current level
