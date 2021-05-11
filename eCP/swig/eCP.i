@@ -17,8 +17,8 @@ namespace std {
   %template(FloatPointerVector) std::vector<float*>;
 }
 
-//%include "../include/eCP/index/eCP.hpp"
-//%include "../src/eCP/index/shared/data_structure.hpp"
+%include "../include/eCP/index/eCP.hpp"
+%include "../src/eCP/index/shared/data_structure.hpp"
 
 // This can line can be tried next if there still seems to be a leak
 //%typemap(newfree) Index * "free($1);";

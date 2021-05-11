@@ -3,12 +3,14 @@
 # Script to be copied into ann-benchmarks dir to automatically run and move around benchmarks
 # for absolute convenience. Uncomment dataset to be run.
 
-NAME="ecp_run_local"
+NAME="ecp_run_local"  # Script name.
 
-# DATASET="random-xs-20-euclidean"
-DATASET="glove-25-angular"
+ALGO_NAME="eCP" # WARNING: Must match in algos.yaml + eCP.py.
 
-echo "${NAME}: Will run benchmarks on eCP. First run 'ecp_install.sh'. Dataset: $DATASET."
+DATASET="random-xs-20-euclidean"
+# DATASET="glove-25-angular"
+
+echo "${NAME}: Will run benchmarks on ${ALGO_NAME}. First run 'ecp_install.sh'. Dataset: $DATASET."
 read -p "${NAME}: Press enter to continue"
 
 # Copy saved dataset if it exists
@@ -26,14 +28,12 @@ python3.6 -m venv env
 source env/bin/activate
 
 echo "${NAME}: Running tests"
-python run.py --local --algorithm eCP --dataset ${DATASET}
+python run.py --local --algorithm ${ALGO_NAME} --dataset ${DATASET}
 
 echo "${NAME}: Creating plots and website"
 python plot.py --dataset ${DATASET}
 
 mkdir -p website
 python create_website.py --outputdir website --scatter
-
-# echo "Cleaning up tests"
 
 echo "${NAME}: Done."

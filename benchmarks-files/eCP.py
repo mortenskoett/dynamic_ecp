@@ -4,28 +4,27 @@ import numpy as np
 from ann_benchmarks.algorithms.base import BaseANN
 
 class eCP(BaseANN):
-    def __init__(self, metric, early_halt, batch_build, Sc):
+    def __init__(self, metric, bulk_build, sc, span, cpol, npol):
       # base args
-        self.early_halt = early_halt
-        self.batch_build = batch_build
+        self.bulk_build = bulk_build
         self.name = "eCP"
 
       # benchmark args
-        self.Sc = Sc
+        self.sc = sc
+        self.span = span
+        self.cpol = cpol
+        self.npol = npol
         
         if(metric == 'angular'):
             self.metric = 1
         else:
-            if(early_halt): 
-                self.metric = 2
-            else:
-                self.metric = 0
+            self.metric = 0
 
     def fit(self, dataset):
         #dataset contains float32, we need to convert it to float64 for the eCP algorithm
         descriptors = dataset.astype(np.float64)
 
-        self.index = e.eCP_Index(descriptors, self.Sc, self.metric, self.batch_build)
+        self.index = e.eCP_Index(descriptors, self.metric, self.sc, self.span, self.cpol, self.npol, self.bulk_build)
 
     def query(self, q, k):
         #query point is float32, convert it to float64
@@ -39,4 +38,4 @@ class eCP(BaseANN):
         self.b = b
 
     def __str__(self):
-        return 'eCP(Sc=%s, b=%s, early_halt=%s, batch_build=%s)' % (self.Sc, self.b, self.early_halt, self.batch_build)
+        return 'eCP(sc=%s, b=%s, span=%s, cpol=%s, npol=%s, bulk_build=%s)' % (self.sc, self.b, self.span, self.cpol, self.npol, self.bulk_build)
