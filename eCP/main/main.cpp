@@ -30,10 +30,10 @@ int main(int argc, char* argv[])
   const int r = INT32_MAX;  // upper bound of generated vectors
   unsigned p = 24;          // number of vectors
   unsigned sc = 2;          // optimal cluster size
-  float span = 0.0;         // Used to decide min/max bounded size on clusters/internal nodes.
-  unsigned cpol = 1;        // Cluster reclustering policy
-  unsigned npol = 1;        // Node reclustering policy
-  bool batch_build = false; // false: build incrementally, true: batch build normally
+  float span = 0.0;         // Used to decide min/max bounded size on clusters/internal nodes. (0.0 < p < 1.0)
+  unsigned cpol = 1;        // Cluster reclustering policy, Avg = 1, Abs = 2
+  unsigned npol = 1;        // Node reclustering policy, Avg = 1, Abs = 2
+  bool bulk_build = false; // false: build incrementally, true: batch build normally
 
   // clang-format on
 
@@ -62,18 +62,31 @@ int main(int argc, char* argv[])
         p = S.size();
         hdf5 = true;
       }
-      else if (flag == "-k") {
-        k = atoi(argv[j]);
-      }
-      else if (flag == "-b") {
-        b = atoi(argv[j]);
-      }
-      // distance metric
+      // Build args.
       else if (flag == "-m") {
         metric = atoi(argv[j]);
       }
       else if (flag == "-sc") {
         sc = atoi(argv[j]);
+      }
+      else if (flag == "-span") {
+        span = atoi(argv[j]);
+      }
+      else if (flag == "-cpol") {
+        cpol = atoi(argv[j]);
+      }
+      else if (flag == "-npol") {
+        npol = atoi(argv[j]);
+      }
+      else if (flag == "-bulk") {
+        bulk_build = atoi(argv[j]);
+      }
+      // Query args.
+      else if (flag == "-k") {
+        k = atoi(argv[j]);
+      }
+      else if (flag == "-b") {
+        b = atoi(argv[j]);
       }
       else {
         throw std::invalid_argument("Invalid flag: " + flag);
@@ -92,7 +105,7 @@ int main(int argc, char* argv[])
 
   /* Index build instrumentation */
   __itt_task_begin(domain_build, __itt_null, __itt_null, handle_build);
-  Index* index = eCP::eCP_Index(S, metric, sc, span, cpol, npol, batch_build);
+  Index* index = eCP::eCP_Index(S, metric, sc, span, cpol, npol, bulk_build);
   __itt_task_end(domain_build);
 
   /* Query instrumentation */
