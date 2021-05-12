@@ -7,8 +7,8 @@ NAME="ecp_run_local"  # Script name.
 
 ALGO_NAME="eCP" # WARNING: Must match in algos.yaml + eCP.py.
 
-DATASET="random-xs-20-euclidean"
-# DATASET="glove-25-angular"
+# DATASET="random-xs-20-euclidean"
+DATASET="glove-25-angular"
 
 echo "${NAME}: Will run benchmarks on ${ALGO_NAME}. First run 'ecp_install.sh'. Dataset: $DATASET."
 read -p "${NAME}: Press enter to continue"

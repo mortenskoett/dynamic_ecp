@@ -8,10 +8,11 @@ float:
       base-args: ["@metric", false] #bulk_build
       run-groups:
        eCP:
-          args: [[30, 300, 800, 1200], #sc
+          # args: [[30, 300, 800, 1200], #sc
+          args: [[100], #sc
                  [0.0], #span (0.0 < p < 1.0)
-                 [2],   #cpol (1=avg, 2=abs)
-                 [2]]   #npol
+                 [1],   #cpol (1=avg, 2=abs)
+                 [1]]   #npol
           query-args: [[1, 5, 10, 20]] #b  
     sptag:
       docker-tag: ann-benchmarks-sptag

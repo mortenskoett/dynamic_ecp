@@ -38,4 +38,4 @@ class eCP(BaseANN):
         self.b = b
 
     def __str__(self):
-        return 'eCP(sc=%s, b=%s, span=%s, cpol=%s, npol=%s, bulk_build=%s)' % (self.sc, self.b, self.span, self.cpol, self.npol, self.bulk_build)
+        return self.name+'(sc=%s, b=%s, span=%s, cpol=%s, npol=%s, bulk_build=%s)' % (self.sc, self.b, self.span, self.cpol, self.npol, self.bulk_build)
