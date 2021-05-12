@@ -4,10 +4,10 @@ import numpy as np
 from ann_benchmarks.algorithms.base import BaseANN
 
 class eCP(BaseANN):
-    def __init__(self, metric, bulk_build, sc, span, cpol, npol):
+    def __init__(self, metric, percentage, sc, span, cpol, npol):
       # base args
-        self.bulk_build = bulk_build
-        self.name = "eCP"
+        self.percentage = percentage
+        self.name = "eCP-Incr-0-Sp03"
 
       # benchmark args
         self.sc = sc
@@ -24,7 +24,7 @@ class eCP(BaseANN):
         #dataset contains float32, we need to convert it to float64 for the eCP algorithm
         descriptors = dataset.astype(np.float64)
 
-        self.index = e.eCP_Index(descriptors, self.metric, self.sc, self.span, self.cpol, self.npol, self.bulk_build)
+        self.index = e.eCP_Index(descriptors, self.metric, self.sc, self.span, self.cpol, self.npol, self.percentage)
 
     def query(self, q, k):
         #query point is float32, convert it to float64
@@ -38,4 +38,4 @@ class eCP(BaseANN):
         self.b = b
 
     def __str__(self):
-        return self.name+'(sc=%s, b=%s, span=%s, cpol=%s, npol=%s, bulk_build=%s)' % (self.sc, self.b, self.span, self.cpol, self.npol, self.bulk_build)
+        return self.name+'(sc=%s, b=%s, span=%s, cpol=%s, npol=%s, percentage=%s)' % (self.sc, self.b, self.span, self.cpol, self.npol, self.percentage)

@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
       else if (flag == "-npol") {
         npol = atoi(argv[j]);
       }
-      else if (flag == "-p") {
+      else if (flag == "-perc") {
         percentage = atof(argv[j]);
       }
       // Query args.
