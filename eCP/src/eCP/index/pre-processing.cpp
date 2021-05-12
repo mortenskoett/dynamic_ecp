@@ -74,9 +74,9 @@ IndexInitParams calculate_initial_index_params(unsigned dataset_size, unsigned s
     throw std::invalid_argument("pre_processing: Size of input dataset (n) must be larger than 0.");
   }
 
-  if (span >= 1) {
+  if (span < 0 || span >= 1) {
     throw std::invalid_argument(
-        "pre_processing: Range of input lo parameter must be greater than 0.0 and less than 1.0");
+        "pre_processing: Range of input lo parameter must be greater than or equal to 0.0 and less than 1.0");
   }
 
   unsigned lo_bound =
