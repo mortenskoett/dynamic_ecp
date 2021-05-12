@@ -24,10 +24,13 @@ namespace pre_processing {
  * Default=ABSOLUTE.
  * @param n_policy is the policy used to decide when to initiate a reclustering of internal nodes.
  * Default=ABSOLUTE. Default reclustering policies recommended in Anders' thesis pp. 38.
+ * @param amount_bulk optional: makes it possible to bulk-load just the first amount_bulk elements of the
+ * dataset, leaving the last part alone.
  * @returns a pointer to the Index type on which queries can be performed.
  */
 Index* create_index(const std::vector<std::vector<float>>& dataset, unsigned sc, float span = 0.0,
-                    ReclusteringPolicy cluster_policy = ABSOLUTE, ReclusteringPolicy n_policy = ABSOLUTE);
+                    ReclusteringPolicy cluster_policy = ABSOLUTE, ReclusteringPolicy n_policy = ABSOLUTE,
+                    unsigned amount_bulk = 0);
 
 }  // namespace pre_processing
 

@@ -23,12 +23,13 @@ namespace eCP {
  * @param c_policy is the policy used to decide when to recluster clusters. 1=Average, 2=Absolute.
  * @param n_policy is the policy used to decide when to recluster internal nodes. 1=Average, 2=Absolute.
  * @param metric is the utilized distance function of the metric space. See the @ref{Metric} type.
- * @param batch_build designates when true that the index should be bulk built from the input dataset and when
- * false that the index should be built incrementally.
+ * @param percentage designates how much of the index should be constructed incrementally out of 100%. The
+ * first 1-percentage elements of the input dataset will be constructed using bulk, and the rest will be
+ * constructed incrementally.
  * @returns a pointer to the constructed index.
  */
 Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned metric, unsigned sc, float span,
-                 unsigned c_policy, unsigned n_policy, bool batch_build = true);
+                 unsigned c_policy, unsigned n_policy, float percentage);
 
 /**
  * @brief insert will insert a descriptor into the index. It is assumed that the given descriptor is of equal

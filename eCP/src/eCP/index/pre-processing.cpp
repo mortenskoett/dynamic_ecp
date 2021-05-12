@@ -123,14 +123,20 @@ namespace pre_processing {
  * Finally the nested levels are added as children of a single Node which acts root.
  */
 Index* create_index(const std::vector<std::vector<float>>& dataset, unsigned sc, float span,
-                    ReclusteringPolicy cluster_policy, ReclusteringPolicy n_policy)
-
+                    ReclusteringPolicy cluster_policy, ReclusteringPolicy node_policy, unsigned amount_bulk)
 {
+  // Handle ability to construct index from only the first part of the dataset.
+  auto amount_dataset = dataset.size();
+
+  if (amount_bulk > 0) {
+    amount_dataset = amount_bulk;
+  }
+
   // ** 1)
-  const auto index_params = pre_processing_helpers::calculate_initial_index_params(dataset.size(), sc, span);
+  const auto index_params = pre_processing_helpers::calculate_initial_index_params(amount_dataset, sc, span);
 
   const auto random_leader_indexes = pre_processing_helpers::generate_leaders_indexes(
-      dataset.size(), index_params.level_sizes, index_params.L);
+      amount_dataset, index_params.level_sizes, index_params.L);
 
   // ** 2)
 
@@ -176,14 +182,13 @@ Index* create_index(const std::vector<std::vector<float>>& dataset, unsigned sc,
 
   // Add all points from input dataset to the index.
   // FIXME: Optional optimization: Use a set to contain id's.
-  unsigned id{0};
-  for (auto& descriptor : dataset) {
-    auto* leaf = traversal::find_nearest_leaf(descriptor.data(), previous_level);
+  for (unsigned i = 0; i < amount_dataset; i++) {
+    auto* leaf = traversal::find_nearest_leaf(dataset[i].data(), previous_level);
+
     // Only add if id was not added to as leader of the cluster when the index was built
-    if (id != leaf->get_leader()->id) {
-      leaf->points.emplace_back(Point{descriptor.data(), id});
+    if (i != leaf->get_leader()->id) {
+      leaf->points.emplace_back(Point{dataset[i].data(), i});
     }
-    id++;
   }
 
   // Pick random node from top_level children to be used as root of index.
@@ -193,9 +198,9 @@ Index* create_index(const std::vector<std::vector<float>>& dataset, unsigned sc,
   root_node.children.swap(previous_level);  // Insert index levels as children of new root.
 
   // Create reclustering scheme based on input.
-  auto scheme = ReclusteringScheme{index_params.lo_bound, index_params.hi_bound, cluster_policy, n_policy};
+  auto scheme = ReclusteringScheme{index_params.lo_bound, index_params.hi_bound, cluster_policy, node_policy};
 
-  return new Index{index_params.L, dataset.size(), root_node, scheme};
+  return new Index{index_params.L, amount_dataset, root_node, scheme};
 }
 
 }  // namespace pre_processing

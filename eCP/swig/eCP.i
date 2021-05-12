@@ -27,7 +27,8 @@ namespace std {
 
 namespace eCP {
 //  Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned sc, unsigned int metric);
-  Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned metric, unsigned sc, float span, unsigned c_policy, unsigned n_policy, bool batch_build);
+//  Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned metric, unsigned sc, float span, unsigned c_policy, unsigned n_policy, bool batch_build);
+  Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned metric, unsigned sc, float span, unsigned c_policy, unsigned n_policy, float percentage);
   std::pair<std::vector<unsigned int>, std::vector<float>> query(Index* index, std::vector<float> query, unsigned int k, unsigned int b);
 }
 

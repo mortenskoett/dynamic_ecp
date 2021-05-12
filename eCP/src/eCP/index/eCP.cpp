@@ -20,8 +20,12 @@ ReclusteringPolicy convert_unsigned_to_reclustering_policy(unsigned val)
 namespace eCP {
 
 Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned metric, unsigned sc, float span,
-                 unsigned c_policy, unsigned n_policy, bool batch_build)
+                 unsigned c_policy, unsigned n_policy, float percentage)
 {
+  if (percentage < 0.0 || percentage > 100.0) {
+    throw std::invalid_argument("Invalid unsigned given. Percentage must be between 0-100.");
+  }
+
   // Set descriptor dimension globally.
   globals::g_vector_dimensions = descriptors[0].size();
 
@@ -33,22 +37,31 @@ Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned me
   auto cluster_policy = convert_unsigned_to_reclustering_policy(c_policy);
   auto node_policy = convert_unsigned_to_reclustering_policy(n_policy);
 
-  // Build index
-  if (batch_build) {
-    Index* index = pre_processing::create_index(descriptors, sc, span, cluster_policy, node_policy);
+  if (percentage < 100) {
+    // XY bulk/incrementally constructed index.
+    // Calculate bulk/incremental load of index.
+    auto amount_incr = std::floor((descriptors.size() / 100) * percentage);
+    auto amount_bulk = descriptors.size() - amount_incr;
+
+    // Create bulk loaded part of index.
+    Index* index =
+        pre_processing::create_index(descriptors, sc, span, cluster_policy, node_policy, amount_bulk);
+
+    // Insert the rest of the dataset.
+    for (unsigned i = amount_bulk; i < descriptors.size(); ++i) {
+      maintenance::insert(descriptors[i].data(), index);
+    }
     return index;
   }
 
   else {
-    // Construct minimal index.
-    std::vector<std::vector<float>> initial_node{descriptors[0]};
-    Index* index = pre_processing::create_index(initial_node, sc, span, cluster_policy, node_policy);
+    // 100% incrementally constructed.
+    Index* index = pre_processing::create_index(descriptors, sc, span, cluster_policy, node_policy, 1);
 
     // Insert the rest of the dataset.
     for (unsigned i = 1; i < descriptors.size(); ++i) {
       maintenance::insert(descriptors[i].data(), index);
     }
-
     return index;
   }
 }
