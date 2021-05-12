@@ -64,7 +64,9 @@ void recluster_internal_node(Node* const node_parent, unsigned node_lo_size, uns
   leaders.reserve(indexes.size());
 
   for (unsigned index : indexes) {  // Pick l random new Nodes as leaders.
-    leaders.emplace_back(Node{*children[index]->get_leader()});
+    auto node{Node{*children[index]->get_leader()}};
+    node.children.reserve(node_hi_size);
+    leaders.emplace_back(node);
   }
 
   // Add each node/subtree to its nearest parent
