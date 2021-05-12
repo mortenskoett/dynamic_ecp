@@ -28,9 +28,9 @@ int main(int argc, char* argv[])
   bool hdf5 = false;        // generate S and queries
   const int d = 25;         // dimensions of vector
   const int r = INT32_MAX;  // upper bound of generated vectors
-  unsigned p = 24;          // number of vectors
-  unsigned sc = 2;          // optimal cluster size
-  float span = 0.0;         // Used to decide min/max bounded size on clusters/internal nodes. (0.0 < p < 1.0)
+  unsigned p = 100000;          // number of vectors
+  unsigned sc = 100;          // optimal cluster size
+  float span = 0.0;         // Used to decide min/max bounded size on clusters/internal nodes. (0.0 <= p < 1.0)
   unsigned cpol = 1;        // Cluster reclustering policy, Avg = 1, Abs = 2
   unsigned npol = 1;        // Node reclustering policy, Avg = 1, Abs = 2
   bool bulk_build = false; // false: build incrementally, true: batch build normally
@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
         sc = atoi(argv[j]);
       }
       else if (flag == "-span") {
-        span = atoi(argv[j]);
+        span = atof(argv[j]);
       }
       else if (flag == "-cpol") {
         cpol = atoi(argv[j]);
@@ -79,7 +79,13 @@ int main(int argc, char* argv[])
         npol = atoi(argv[j]);
       }
       else if (flag == "-bulk") {
-        bulk_build = atoi(argv[j]);
+        auto val = atoi(argv[j]);
+        if (val == 1) {
+          bulk_build = true;
+        }
+        else {
+          bulk_build = false;
+        }
       }
       // Query args.
       else if (flag == "-k") {
