@@ -4,7 +4,50 @@
 #include <iostream>
 #include <queue>
 
+std::vector<size_t> count_cluster_sizes_rec(Node root)
+{
+  std::vector<size_t> acc{};
+
+  if (root.children.empty()) {
+    acc.emplace_back(root.points.size());
+  }
+  else {
+    for (auto& node : root.children) {
+      auto res = count_cluster_sizes_rec(node);
+      acc.insert(acc.end(), res.begin(), res.end());  // Insert range at end.
+    }
+  }
+  return acc;
+}
+
+std::vector<size_t> count_node_sizes_rec(Node root)
+{
+  std::vector<size_t> acc{};
+
+  if (!root.children.empty()) {
+    acc.emplace_back(root.children.size());
+
+    for (auto& node : root.children) {
+      auto res = count_node_sizes_rec(node);
+      acc.insert(acc.end(), res.begin(), res.end());  // Insert range at end.
+    }
+  }
+  return acc;
+}
+
 namespace debugging {
+
+std::vector<size_t> count_cluster_sizes(Index* index)
+{
+  // Use util function.
+  return count_cluster_sizes_rec(index->root);
+}
+
+std::vector<size_t> count_node_sizes(Index* index)
+{
+  // Use util function.
+  return count_node_sizes_rec(index->root);
+}
 
 void print_query_results(std::pair<std::vector<unsigned int>, std::vector<float>>& result,
                          std::vector<float>& query, unsigned int k,

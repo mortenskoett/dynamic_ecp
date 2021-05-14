@@ -9,6 +9,11 @@
  */
 namespace debugging {
 
+std::vector<size_t> count_cluster_sizes(Index* index);
+
+std::vector<size_t> count_node_sizes(Index* index);
+
+// Old
 void print_query_results(std::pair<std::vector<unsigned int>, std::vector<float>>& res,
                          std::vector<float>& query, unsigned int k, const std::vector<std::vector<float>>& S);
 

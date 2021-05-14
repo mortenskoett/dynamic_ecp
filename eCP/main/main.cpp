@@ -28,12 +28,12 @@ int main(int argc, char* argv[])
   bool hdf5 = false;        // generate S and queries
   const int d = 25;         // dimensions of vector
   const int r = INT32_MAX;  // upper bound of generated vectors
-  unsigned p = 10000;          // number of vectors
-  unsigned sc = 100;          // optimal cluster size
+  unsigned p = 40;          // number of vectors
+  unsigned sc = 5;          // optimal cluster size
   float span = 0.0;         // Used to decide min/max bounded size on clusters/internal nodes. (0.0 <= p < 1.0)
   unsigned cpol = 1;        // Cluster reclustering policy, Avg = 1, Abs = 2
   unsigned npol = 1;        // Node reclustering policy, Avg = 1, Abs = 2
-  float percentage = 30;     // Percentage of last part of dataset to insert incrementally.
+  float percentage = 0;     // Percentage of last part of dataset to insert incrementally.
 
   // clang-format on
 
@@ -107,6 +107,8 @@ int main(int argc, char* argv[])
   __itt_task_begin(domain_build, __itt_null, __itt_null, handle_build);
   Index* index = eCP::eCP_Index(S, metric, sc, span, cpol, npol, percentage);
   __itt_task_end(domain_build);
+
+  auto res = debugging::count_node_sizes(index);
 
   /* Query instrumentation */
   __itt_task_begin(domain_query, __itt_null, __itt_null, handle_query);
