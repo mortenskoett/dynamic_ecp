@@ -37,6 +37,17 @@ std::vector<size_t> count_node_sizes_rec(Node root)
 
 namespace debugging {
 
+void print(std::string before, std::string after, std::vector<size_t> v)
+{
+  std::cout << "------------------------------------" << std::endl;
+  std::cout << before << std::endl;
+  std::cout << "------------------------------------" << std::endl;
+  for (auto& size : v) {
+    std::cout << size << "\n";
+  }
+  std::cout << after << "\n" << std::endl;
+}
+
 std::vector<size_t> count_cluster_sizes(Index* index)
 {
   // Use util function.

@@ -1,4 +1,5 @@
 #include <cmath>
+#include <eCP/debugging/debug_tools.hpp>
 #include <eCP/index/eCP.hpp>
 #include <eCP/index/maintenance.hpp>
 #include <eCP/index/pre-processing.hpp>
@@ -37,9 +38,8 @@ Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned me
   auto cluster_policy = convert_unsigned_to_reclustering_policy(c_policy);
   auto node_policy = convert_unsigned_to_reclustering_policy(n_policy);
 
+  // Bulk/incrementally constructed index.
   if (percentage < 100) {
-    // XY bulk/incrementally constructed index.
-    // Calculate bulk/incremental load of index.
     auto amount_incr = std::floor((descriptors.size() / 100) * percentage);
     auto amount_bulk = descriptors.size() - amount_incr;
 
@@ -47,21 +47,38 @@ Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned me
     Index* index =
         pre_processing::create_index(descriptors, sc, span, cluster_policy, node_policy, amount_bulk);
 
+    debugging::print("Clusters after bulk insertion: L=" + std::to_string(index->L) + "," +
+                         "Size=" + std::to_string(index->size),
+                     "", debugging::count_cluster_sizes(index));
+
+    debugging::print("Nodes after bulk insertion:", "", debugging::count_node_sizes(index));
+
     // Insert the rest of the dataset.
     for (unsigned i = amount_bulk; i < descriptors.size(); ++i) {
       maintenance::insert(descriptors[i].data(), index);
     }
+
+    /*
+    debugging::print("Clusters after incremental insertion:", "", debugging::count_cluster_sizes(index));
+    debugging::print("Nodes after incremental insertion:", "", debugging::count_node_sizes(index));
+    */
+
     return index;
   }
 
+  // 100% incrementally constructed.
   else {
-    // 100% incrementally constructed.
     Index* index = pre_processing::create_index(descriptors, sc, span, cluster_policy, node_policy, 1);
 
     // Insert the rest of the dataset.
     for (unsigned i = 1; i < descriptors.size(); ++i) {
       maintenance::insert(descriptors[i].data(), index);
     }
+
+    /*
+    debugging::print("Clusters after incremental insertion:", "", debugging::count_cluster_sizes(index));
+    */
+
     return index;
   }
 }

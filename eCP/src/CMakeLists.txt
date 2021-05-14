@@ -35,6 +35,7 @@ target_include_directories(eCPLib
 target_link_libraries(eCPLib
   sharedLib
   utilLib
+  debugLib
 )
 
 # -- Utilities Library --
@@ -60,6 +61,11 @@ target_include_directories(utilLib
 # -- Debugging Library --
 add_library(debugLib
   ./eCP/debugging/debug_tools.cpp
+)
+
+target_compile_options(debugLib
+  PRIVATE
+    "-fPIC"
 )
 
 target_include_directories(debugLib
