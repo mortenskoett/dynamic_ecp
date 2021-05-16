@@ -14,6 +14,15 @@ namespace maintenance {
  */
 void insert(const float* descriptor, Index* const index);
 
+// Get metrics on number of reclusterings.
+unsigned get_insertions_total();
+unsigned get_total_reclusterings();
+unsigned get_node_reclusterings();
+unsigned get_cluster_reclusterings();
+unsigned get_times_index_has_grown();
+
+void print_maintenance_metrics();
+
 }  // namespace maintenance
 
 #endif  // MAINTENANCE_HPP

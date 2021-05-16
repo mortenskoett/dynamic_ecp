@@ -37,7 +37,7 @@ std::vector<size_t> count_node_sizes_rec(Node root)
 
 namespace debugging {
 
-void print(std::string before, std::string after, std::vector<size_t> v)
+void print_index_vector_info(std::string before, std::string after, std::vector<size_t> v)
 {
   std::cout << "------------------------------------" << std::endl;
   std::cout << before << std::endl;
@@ -45,7 +45,7 @@ void print(std::string before, std::string after, std::vector<size_t> v)
   for (auto& size : v) {
     std::cout << size << "\n";
   }
-  std::cout << after << "\n" << std::endl;
+  std::cout << after << std::endl;
 }
 
 std::vector<size_t> count_cluster_sizes(Index* index)

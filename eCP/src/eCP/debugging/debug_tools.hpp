@@ -9,7 +9,7 @@
  */
 namespace debugging {
 
-void print(std::string before, std::string after, std::vector<size_t> v);
+void print_index_vector_info(std::string before, std::string after, std::vector<size_t> v);
 
 std::vector<size_t> count_cluster_sizes(Index* index);
 

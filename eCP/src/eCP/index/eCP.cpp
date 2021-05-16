@@ -47,21 +47,23 @@ Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned me
     Index* index =
         pre_processing::create_index(descriptors, sc, span, cluster_policy, node_policy, amount_bulk);
 
-    debugging::print("Clusters after bulk insertion: L=" + std::to_string(index->L) + "," +
-                         "Size=" + std::to_string(index->size),
-                     "", debugging::count_cluster_sizes(index));
-
-    debugging::print("Nodes after bulk insertion:", "", debugging::count_node_sizes(index));
+    debugging::print_index_vector_info("Clusters sizes after bulk insertion: L=" + std::to_string(index->L) +
+                                           "," + "Size=" + std::to_string(index->size),
+                                       "", debugging::count_cluster_sizes(index));
+    debugging::print_index_vector_info("Nodes sizes after bulk insertion:", "",
+                                       debugging::count_node_sizes(index));
 
     // Insert the rest of the dataset.
     for (unsigned i = amount_bulk; i < descriptors.size(); ++i) {
       maintenance::insert(descriptors[i].data(), index);
     }
 
-    /*
-    debugging::print("Clusters after incremental insertion:", "", debugging::count_cluster_sizes(index));
-    debugging::print("Nodes after incremental insertion:", "", debugging::count_node_sizes(index));
-    */
+    debugging::print_index_vector_info("Cluster sizes after incremental insertion:", "",
+                                       debugging::count_cluster_sizes(index));
+    debugging::print_index_vector_info("Nodes sizes after incremental insertion:", "",
+                                       debugging::count_node_sizes(index));
+
+    maintenance::print_maintenance_metrics();
 
     return index;
   }
@@ -75,9 +77,12 @@ Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned me
       maintenance::insert(descriptors[i].data(), index);
     }
 
-    /*
-    debugging::print("Clusters after incremental insertion:", "", debugging::count_cluster_sizes(index));
-    */
+    debugging::print_index_vector_info("Clusters sizes after incremental insertion:", "",
+                                       debugging::count_cluster_sizes(index));
+    debugging::print_index_vector_info("Nodes sizes after incremental insertion:", "",
+                                       debugging::count_node_sizes(index));
+
+    maintenance::print_maintenance_metrics();
 
     return index;
   }

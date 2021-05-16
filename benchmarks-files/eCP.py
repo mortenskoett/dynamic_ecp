@@ -7,7 +7,7 @@ class eCP(BaseANN):
     def __init__(self, metric, percentage, sc, span, cpol, npol):
       # base args
         self.percentage = percentage
-        self.name = "eCP-Incr-0-Sp03"
+        self.name = "eCP-Bulk-Sc130"
 
       # benchmark args
         self.sc = sc

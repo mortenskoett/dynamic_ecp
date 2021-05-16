@@ -7,6 +7,12 @@
 
 namespace maintenance_helpers {
 
+// Store the number of reclusterings that has happened
+unsigned node_reclusterings{0};
+unsigned cluster_reclusterings{0};
+unsigned insertions_total{0};
+unsigned index_grown{0};
+
 /**
  * @brief grow_index creates a new root node and replaces the current root in the given Index type.
  * The old root is added as child of the new.
@@ -24,6 +30,7 @@ void grow_index(Node* current_root, Index* const index)
   new_root.children.emplace_back(*current_root);  // Add old root to the children list.
   index->root = new_root;
   index->L++;
+  index_grown++;
 }
 
 /**
@@ -75,6 +82,7 @@ void recluster_internal_node(Node* const node_parent, unsigned node_lo_size, uns
   }
 
   node_parent->children.swap(leaders);
+  node_reclusterings++;
 }
 
 void recluster_cluster(Node* const cluster_parent, unsigned cluster_lo_size, unsigned cluster_hi_size)
@@ -106,6 +114,7 @@ void recluster_cluster(Node* const cluster_parent, unsigned cluster_lo_size, uns
   }
 
   cluster_parent->children.swap(leaders);
+  cluster_reclusterings++;
 }
 
 /**
@@ -244,6 +253,34 @@ std::stack<Node*> collect_path_to_nearest_cluster(const float* query, Node* cons
 
 namespace maintenance {
 
+unsigned get_total_reclusterings()
+{
+  return maintenance_helpers::cluster_reclusterings + maintenance_helpers::node_reclusterings;
+}
+unsigned get_node_reclusterings() { return maintenance_helpers::node_reclusterings; }
+unsigned get_cluster_reclusterings() { return maintenance_helpers::cluster_reclusterings; }
+unsigned get_insertions_total() { return maintenance_helpers::insertions_total; }
+unsigned get_times_index_has_grown() { return maintenance_helpers::index_grown; }
+
+void print_maintenance_metrics()
+{
+  auto crecl = maintenance::get_cluster_reclusterings();
+  auto nrecl = maintenance::get_node_reclusterings();
+  auto totalrecl = maintenance::get_total_reclusterings();
+  auto totalinser = maintenance::get_insertions_total();
+  auto indexgr = maintenance::get_times_index_has_grown();
+
+  std::cout << "------------------------------------" << std::endl;
+  std::cout << "Maintenance metrics" << std::endl;
+  std::cout << "------------------------------------" << std::endl;
+  std::cout << "Total insertions: " << totalinser << std::endl;
+  std::cout << "Total reclusterings: " << totalrecl << std::endl;
+  std::cout << "Cluster reclusterings: " << crecl << std::endl;
+  std::cout << "Node reclusterings: " << nrecl << std::endl;
+  std::cout << "Index growth times: " << indexgr << std::endl;
+  std::cout << std::endl;
+}
+
 void insert(const float* descriptor, Index* index)
 {
   if (index->size < 1)
@@ -253,6 +290,7 @@ void insert(const float* descriptor, Index* index)
   auto path = maintenance_helpers::collect_path_to_nearest_cluster(descriptor, &index->root);
   path.top()->points.emplace_back(Point{descriptor, index->size++});  // Insert descriptor and incr. size.
   maintenance_helpers::initiate_index_reclustering(path, index);
+  maintenance_helpers::insertions_total++;
 }
 
 }  // namespace maintenance
