@@ -21,9 +21,11 @@ for i in range(0, len(contents)):
     else:
       coords[id] = (float(contents[i+2]), float(contents[i+1]))
 
-for k,v in coords.items():
-  x = float(v[0])/count
-  y = float(v[1])/count
-  print(k + ": " + "(" + str(x) + ", " + str(y) + ")")
+with open('ecp_coordinates.csv','w',encoding = 'utf-8') as file:
+  for k,v in coords.items():
+    x = float(v[0])/count
+    y = float(v[1])/count
+    print(k + ": " + "(" + str(x) + ", " + str(y) + ")")
+    file.write(k + ": " + "(" + str(x) + ", " + str(y) + "),\n")
 
-print("Cleanup done.")
+print("Cleanup done. Written to ecp_coordinates.csv")
