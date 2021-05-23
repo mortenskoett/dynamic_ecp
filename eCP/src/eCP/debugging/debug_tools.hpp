@@ -9,6 +9,10 @@
  */
 namespace debugging {
 
+void append_string_to_file(std::string s, std::string filename);
+
+void append_vector_to_file(std::vector<size_t> v, std::string filename);
+
 void print_index_vector_info(std::string before, std::string after, std::vector<size_t> v);
 
 std::vector<size_t> count_cluster_sizes(Index* index);

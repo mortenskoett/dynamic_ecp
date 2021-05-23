@@ -21,6 +21,7 @@ unsigned get_node_reclusterings();
 unsigned get_cluster_reclusterings();
 unsigned get_times_index_has_grown();
 
+void append_to_csv_maintenance_metrics();
 void print_maintenance_metrics();
 
 }  // namespace maintenance

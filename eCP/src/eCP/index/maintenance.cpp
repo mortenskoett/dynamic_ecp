@@ -2,6 +2,8 @@
 #include <eCP/index/maintenance.hpp>
 #include <eCP/index/shared/traversal.hpp>
 #include <eCP/utilities/utilities.hpp>
+#include <fstream>
+#include <iostream>
 #include <stack>
 #include <stdexcept>
 
@@ -261,6 +263,21 @@ unsigned get_node_reclusterings() { return maintenance_helpers::node_reclusterin
 unsigned get_cluster_reclusterings() { return maintenance_helpers::cluster_reclusterings; }
 unsigned get_insertions_total() { return maintenance_helpers::insertions_total; }
 unsigned get_times_index_has_grown() { return maintenance_helpers::index_grown; }
+
+void append_to_csv_maintenance_metrics()
+{
+  auto crecl = std::to_string(maintenance::get_cluster_reclusterings());
+  auto nrecl = std::to_string(maintenance::get_node_reclusterings());
+  auto totalrecl = std::to_string(maintenance::get_total_reclusterings());
+  auto totalinser = std::to_string(maintenance::get_insertions_total());
+  auto indexgr = std::to_string(maintenance::get_times_index_has_grown());
+
+  std::ofstream file;
+  file.open("ecp_maintenance.csv", std::ios_base::app);
+  //  file << "cl_recl, node_recl, total_recl, total_insert, index_gr \n";
+  file << crecl << ", " << nrecl << ", " << totalrecl << ", " << totalinser << ", " << indexgr << "\n";
+  file.close();
+}
 
 void print_maintenance_metrics()
 {

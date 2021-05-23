@@ -1,7 +1,9 @@
 #include <cmath>
 #include <eCP/debugging/debug_tools.hpp>
 #include <eCP/index/shared/globals.hpp>
+#include <fstream>
 #include <iostream>
+#include <iterator>
 #include <queue>
 
 std::vector<size_t> count_cluster_sizes_rec(Node root)
@@ -36,6 +38,26 @@ std::vector<size_t> count_node_sizes_rec(Node root)
 }
 
 namespace debugging {
+
+void append_string_to_file(std::string s, std::string filename)
+{
+  std::ofstream file;
+  file.open(filename, std::ios_base::app);
+  file << s << "\n";
+  file.close();
+}
+
+void append_vector_to_file(std::vector<size_t> v, std::string filename)
+{
+  std::ofstream file;
+  file.open(filename, std::ios_base::app);
+
+  for (auto& size : v) {
+    file << size << ", ";
+  }
+
+  file.close();
+}
 
 void print_index_vector_info(std::string before, std::string after, std::vector<size_t> v)
 {
