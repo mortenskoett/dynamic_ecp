@@ -56,6 +56,8 @@ void append_vector_to_file(std::vector<size_t> v, std::string filename)
     file << size << ", ";
   }
 
+  file << std::endl;
+
   file.close();
 }
 

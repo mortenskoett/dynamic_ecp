@@ -47,6 +47,16 @@ python data_export.py --output exports/exports.csv
 echo "Cleaning up data"
 python cleanup.py
 
+echo "Moving samples into separate directory"
+mkdir mskk_benchmark
+mv -v ecp_clusters_bulk.csv   mskk_benchmark/ecp_clusters_bulk.csv
+mv -v ecp_clusters_incr.csv   mskk_benchmark/ecp_clusters_incr.csv 
+mv -v ecp_coordinates.csv     mskk_benchmark/ecp_coordinates.csv 
+mv -v ecp_general_stats.csv   mskk_benchmark/ecp_general_stats.csv 
+mv -v ecp_maintenance.csv     mskk_benchmark/ecp_maintenance.csv 
+mv -v ecp_nodes_bulk.csv      mskk_benchmark/ecp_nodes_bulk.csv 
+mv -v ecp_nodes_incr.csv      mskk_benchmark/ecp_nodes_incr.csv
+
 # mkdir -p website
 # python create_website.py --outputdir website --scatter --latex
 
