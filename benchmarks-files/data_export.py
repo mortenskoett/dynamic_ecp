@@ -78,6 +78,8 @@ if __name__ == "__main__":
     if len(dfs) > 0:
         data = pd.concat(dfs)
         # data.to_csv(args.output, index=False)
+
+        # mskk Appends to the file
         data.to_csv(args.output, index=False, mode='a')
     if pqwriter is not None:
         pqwriter.close()

@@ -84,7 +84,9 @@ def compute_all_metrics(true_nn_distances, run, properties, recompute=False):
         if v:
             print('%s: %g' % (name, v))
     #return (algo, algo_name, results['k-nn'], results['qps'])
-    return (algo_name, results['k-nn'], results['qps'])
+
+    # mskk Simpler output
+    return (algo, results['k-nn'], results['qps'])
 
 
 def generate_n_colors(n):

@@ -5,14 +5,16 @@
 
 NAME="ecp_run_local"  # Script name.
 
-ALGO_NAME="eCP" # WARNING: Must match in algos.yaml + eCP.py.
+# ALGO_NAME="eCP" # WARNING: Must match in algos.yaml + eCP.py.
 
 DATASET="random-xs-20-euclidean"
+
+ALGOS=(eCP eCP-2 eCP-3)
 
 #DATASET="glove-25-angular"
 # DATASET="sift-128-euclidean"
 
-echo "${NAME}: Will run benchmarks on ${ALGO_NAME}. First run 'ecp_install.sh'. Dataset: $DATASET."
+echo "${NAME}: Will run benchmarks on ${ALGOS[*]}. First run 'ecp_install.sh'. Dataset: $DATASET."
 read -p "${NAME}: Press enter to continue"
 
 # Copy saved dataset if it exists
@@ -30,12 +32,19 @@ python3.6 -m venv env
 source env/bin/activate
 
 echo "${NAME}: Running tests"
-python run.py --local --algorithm ${ALGO_NAME} --dataset ${DATASET}
+# python run.py --local --algorithm ${ALGO_NAME} --dataset ${DATASET}
+
+for algo in "${ALGOS[@]}";do
+  python run.py --local --algorithm "$algo" --dataset ${DATASET}
+done
 
 echo "${NAME}: Creating plots and website"
 python plot.py --dataset ${DATASET}
 
-mkdir -p website
-python create_website.py --outputdir website --scatter --latex
+echo "Exporting data to ./exports"
+python data_export.py --output exports/exports.csv
+
+# mkdir -p website
+# python create_website.py --outputdir website --scatter --latex
 
 echo "${NAME}: Done."
