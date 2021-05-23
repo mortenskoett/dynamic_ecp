@@ -36,6 +36,7 @@ yes | cp -rv ${REPO_DIR_NAME}/benchmarks-files/algos.yaml			ann-benchmarks/algos
 
 yes | cp -rv ${REPO_DIR_NAME}/benchmarks-files/data_export.py			ann-benchmarks/data_export.py
 yes | cp -rv ${REPO_DIR_NAME}/benchmarks-files/utils.py			      ann-benchmarks/ann_benchmarks/plotting/utils.py
+yes | cp -rv ${REPO_DIR_NAME}/benchmarks-files/cleanup.py			      ann-benchmarks/cleanup.py
 
 
 echo "${NAME}: Copying generated files"

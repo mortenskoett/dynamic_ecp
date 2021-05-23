@@ -44,6 +44,9 @@ python plot.py --dataset ${DATASET}
 echo "Exporting data to ./exports"
 python data_export.py --output exports/exports.csv
 
+echo "Cleaning up data"
+python cleanup.py
+
 # mkdir -p website
 # python create_website.py --outputdir website --scatter --latex
 
