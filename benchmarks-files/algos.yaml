@@ -5,12 +5,12 @@ float:
       docker-tag: ann-benchmarks-ecp
       module: ann_benchmarks.algorithms.eCP
       constructor: eCP
-      base-args: ["@metric", 50] #percentage of dataset to load dynamically load
+      base-args: ["@metric", 0] #percentage of dataset to load dynamically load
       run-groups:
        eCP:
           # args: [[30, 300, 800, 1200], #sc
-          args: [[100], #sc
-                 [0.3], #span (0.0 < p < 1.0)
+          args: [[130], #sc
+                 [0.0], #span (0.0 < p < 1.0)
                  [1],   #cpol (1=avg, 2=abs)
                  [1]]   #npol
           query-args: [[1, 5, 10, 20]] #b  
@@ -19,12 +19,12 @@ float:
       docker-tag: ann-benchmarks-ecp
       module: ann_benchmarks.algorithms.eCP-2
       constructor: eCP
-      base-args: ["@metric", 50] #percentage of dataset to load dynamically load
+      base-args: ["@metric", 0] #percentage of dataset to load dynamically load
       run-groups:
        eCP:
           # args: [[30, 300, 800, 1200], #sc
-          args: [[100], #sc
-                 [0.3], #span (0.0 < p < 1.0)
+          args: [[130], #sc
+                 [0.0], #span (0.0 < p < 1.0)
                  [1],   #cpol (1=avg, 2=abs)
                  [1]]   #npol
           query-args: [[1, 5, 10, 20]] #b  
@@ -33,12 +33,12 @@ float:
       docker-tag: ann-benchmarks-ecp
       module: ann_benchmarks.algorithms.eCP-3
       constructor: eCP
-      base-args: ["@metric", 50] #percentage of dataset to load dynamically load
+      base-args: ["@metric", 0] #percentage of dataset to load dynamically load
       run-groups:
        eCP:
           # args: [[30, 300, 800, 1200], #sc
-          args: [[100], #sc
-                 [0.3], #span (0.0 < p < 1.0)
+          args: [[130], #sc
+                 [0.0], #span (0.0 < p < 1.0)
                  [1],   #cpol (1=avg, 2=abs)
                  [1]]   #npol
           query-args: [[1, 5, 10, 20]] #b  

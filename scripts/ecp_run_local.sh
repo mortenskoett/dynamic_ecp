@@ -6,12 +6,10 @@
 NAME="ecp_run_local"  # Script name.
 
 # ALGO_NAME="eCP" # WARNING: Must match in algos.yaml + eCP.py.
-
-DATASET="random-xs-20-euclidean"
-
 ALGOS=(eCP eCP-2 eCP-3)
 
-#DATASET="glove-25-angular"
+# DATASET="random-xs-20-euclidean"
+DATASET="glove-25-angular"
 # DATASET="sift-128-euclidean"
 
 echo "${NAME}: Will run benchmarks on ${ALGOS[*]}. First run 'ecp_install.sh'. Dataset: $DATASET."
@@ -41,13 +39,13 @@ done
 echo "${NAME}: Creating plots and website"
 python plot.py --dataset ${DATASET}
 
-echo "Exporting data to ./exports"
+echo "${NAME}: Exporting data to ./exports"
 python data_export.py --output exports/exports.csv
 
-echo "Cleaning up data"
+echo "${NAME}: Averaging AB data samples"
 python cleanup.py
 
-echo "Moving samples into separate directory"
+echo "${NAME}: Moving samples into separate directory"
 mkdir mskk_benchmark
 mv -v ecp_clusters_bulk.csv   mskk_benchmark/ecp_clusters_bulk.csv
 mv -v ecp_clusters_incr.csv   mskk_benchmark/ecp_clusters_incr.csv 
@@ -56,6 +54,7 @@ mv -v ecp_general_stats.csv   mskk_benchmark/ecp_general_stats.csv
 mv -v ecp_maintenance.csv     mskk_benchmark/ecp_maintenance.csv 
 mv -v ecp_nodes_bulk.csv      mskk_benchmark/ecp_nodes_bulk.csv 
 mv -v ecp_nodes_incr.csv      mskk_benchmark/ecp_nodes_incr.csv
+mv -v exports/exports.csv     mskk_benchmark/exports.csv
 
 # mkdir -p website
 # python create_website.py --outputdir website --scatter --latex

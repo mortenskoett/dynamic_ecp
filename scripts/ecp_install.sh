@@ -48,7 +48,7 @@ cd ann-benchmarks
 python3.6 -m venv env
 source env/bin/activate
 
-echo "Making export dir and export file..."
+echo "${NAME}: Making export dir and export file..."
 mkdir exports
 
 echo "${NAME}: Install dependencies"
