@@ -56,7 +56,7 @@ Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned me
 
     debugging::append_string_to_file("L: " + std::to_string(index->L), "ecp_general_stats.csv");
     debugging::append_vector_to_file(debugging::count_cluster_sizes(index), "ecp_clusters_bulk.csv");
-    debugging::append_vector_to_file(debugging::count_cluster_sizes(index), "ecp_nodes_bulk.csv");
+    debugging::append_vector_to_file(debugging::count_node_sizes(index), "ecp_nodes_bulk.csv");
 
     // Insert the rest of the dataset.
     for (unsigned i = amount_bulk; i < descriptors.size(); ++i) {
@@ -70,7 +70,7 @@ Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned me
     //    maintenance::print_maintenance_metrics();
 
     debugging::append_vector_to_file(debugging::count_cluster_sizes(index), "ecp_clusters_incr.csv");
-    debugging::append_vector_to_file(debugging::count_cluster_sizes(index), "ecp_nodes_incr.csv");
+    debugging::append_vector_to_file(debugging::count_node_sizes(index), "ecp_nodes_incr.csv");
     maintenance::append_to_csv_maintenance_metrics();
 
     return index;
@@ -92,7 +92,7 @@ Index* eCP_Index(const std::vector<std::vector<float>>& descriptors, unsigned me
     //    maintenance::print_maintenance_metrics();
 
     debugging::append_vector_to_file(debugging::count_cluster_sizes(index), "cluster_sizes_incr.csv");
-    debugging::append_vector_to_file(debugging::count_cluster_sizes(index), "node_sizes_incr.csv");
+    debugging::append_vector_to_file(debugging::count_node_sizes(index), "node_sizes_incr.csv");
     maintenance::append_to_csv_maintenance_metrics();
 
     return index;
