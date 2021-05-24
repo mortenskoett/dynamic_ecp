@@ -55,6 +55,7 @@ mv -v ecp_maintenance.csv     mskk_benchmark/ecp_maintenance.csv
 mv -v ecp_nodes_bulk.csv      mskk_benchmark/ecp_nodes_bulk.csv 
 mv -v ecp_nodes_incr.csv      mskk_benchmark/ecp_nodes_incr.csv
 mv -v exports/exports.csv     mskk_benchmark/exports.csv
+mv -v results                 mskk_benchmark/results
 
 # mkdir -p website
 # python create_website.py --outputdir website --scatter --latex
