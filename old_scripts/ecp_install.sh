@@ -32,11 +32,6 @@ echo "${NAME}: Copy eCP necessary files"
 yes | cp -rv ${REPO_DIR_NAME}/benchmarks-files/eCP.py					ann-benchmarks/ann_benchmarks/algorithms/eCP.py
 yes | cp -rv ${REPO_DIR_NAME}/benchmarks-files/Dockerfile.ecp ann-benchmarks/install/Dockerfile.ecp
 yes | cp -rv ${REPO_DIR_NAME}/benchmarks-files/algos.yaml			ann-benchmarks/algos.yaml
-yes | cp -rv ${REPO_DIR_NAME}/benchmarks-files/algos.yaml			ann-benchmarks/algos.yaml
-
-yes | cp -rv ${REPO_DIR_NAME}/benchmarks-files/data_export.py			ann-benchmarks/data_export.py
-yes | cp -rv ${REPO_DIR_NAME}/benchmarks-files/utils.py			      ann-benchmarks/ann_benchmarks/plotting/utils.py
-yes | cp -rv ${REPO_DIR_NAME}/benchmarks-files/cleanup.py			      ann-benchmarks/cleanup.py
 
 
 echo "${NAME}: Copying generated files"
@@ -47,9 +42,6 @@ echo "${NAME}: Setup python 3.6 env inside ann-benchmarks"
 cd ann-benchmarks
 python3.6 -m venv env
 source env/bin/activate
-
-echo "${NAME}: Making export dir and export file..."
-mkdir exports
 
 echo "${NAME}: Install dependencies"
 pip install -r requirements.txt
